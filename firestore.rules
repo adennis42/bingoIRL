@@ -1,0 +1,75 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if user is the host of a game
+    function isHost() {
+      return isAuthenticated() && 
+             resource.data.hostId == request.auth.uid;
+    }
+    
+    // Games collection
+    match /games/{gameId} {
+      // Allow hosts to read their own games
+      allow read: if isAuthenticated();
+      
+      // Allow hosts to create games (must be authenticated and set themselves as host)
+      allow create: if isAuthenticated() && 
+                     request.resource.data.hostId == request.auth.uid;
+      
+      // Allow hosts to update their own games
+      allow update: if isHost();
+      
+      // Allow hosts to delete their own games
+      allow delete: if isHost();
+      
+      // Called numbers subcollection
+      match /calledNumbers/{calledNumberId} {
+        // Allow anyone authenticated to read called numbers
+        allow read: if isAuthenticated();
+        
+        // Only host can write called numbers (check parent game document)
+        allow write: if isAuthenticated() && 
+                      get(/databases/$(database)/documents/games/$(gameId)).data.hostId == request.auth.uid;
+      }
+      
+      // Players subcollection
+      match /players/{playerId} {
+        // Allow authenticated users to read players
+        allow read: if isAuthenticated();
+        
+        // Allow authenticated users to join (create their own player document)
+        allow create: if isAuthenticated() && 
+                       playerId == request.auth.uid;
+        
+        // Allow players to update their own player document
+        allow update: if isAuthenticated() && 
+                       playerId == request.auth.uid;
+        
+        // Allow players to delete their own player document
+        allow delete: if isAuthenticated() && 
+                       playerId == request.auth.uid;
+      }
+    }
+    
+    // Users collection (hosts only)
+    match /users/{userId} {
+      // Allow users to read their own data
+      allow read: if isAuthenticated() && 
+                   userId == request.auth.uid;
+      
+      // Allow users to create their own user document
+      allow create: if isAuthenticated() && 
+                     userId == request.auth.uid;
+      
+      // Allow users to update their own user document
+      allow update: if isAuthenticated() && 
+                     userId == request.auth.uid;
+    }
+  }
+}
+

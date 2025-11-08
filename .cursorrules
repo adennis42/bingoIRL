@@ -1,0 +1,402 @@
+# Bingo Host Application - Development Context
+
+## Project Overview
+A cross-platform mobile and web application built with Flutter and Firebase that enables bingo hosts to manage live bingo games in physical venues. Players use physical bingo cards while following along digitally through the app.
+
+## Core Purpose
+Enable seamless bingo game hosting where:
+- Hosts manage game flow (calling numbers, tracking rounds, managing winners)
+- Players view called numbers in real-time on their devices
+- All participants stay synchronized through Firebase real-time updates
+- Physical bingo cards and venues remain the primary experience
+
+## Tech Stack
+
+### Frontend
+- **Framework:** Flutter (latest stable)
+- **Platforms:** iOS, Android, Web
+- **State Management:** Provider or Riverpod (to be decided)
+- **Key Packages:**
+  - `firebase_core` - Firebase initialization
+  - `cloud_firestore` - Real-time database
+  - `firebase_auth` - Authentication
+  - `qr_flutter` - QR code generation for game codes
+  - `responsive_framework` - Responsive layouts
+
+### Backend
+- **Platform:** Firebase
+- **Services:**
+  - Firebase Authentication (email/password for hosts, anonymous for players)
+  - Cloud Firestore (real-time database)
+  - Firebase Hosting (web deployment)
+  - Cloud Functions (optional, for cleanup and analytics)
+
+## Data Architecture
+
+### Firestore Structure
+```
+/games/{gameId}
+  - hostId: string
+  - gameCode: string (6-digit alphanumeric)
+  - status: enum ["setup", "active", "paused", "ended"]
+  - createdAt: timestamp
+  - currentRound: number
+  - totalRounds: number
+  - rounds: array of objects
+    - roundNumber: number
+    - pattern: string (e.g., "traditional_line", "four_corners", "blackout")
+    - prize: string (optional)
+    - winnerId: string (optional)
+    - winnerName: string (optional)
+    - completedAt: timestamp (optional)
+
+/games/{gameId}/calledNumbers (subcollection)
+  - {documentId}
+    - number: string (format: "B7", "I23", "N45", "G60", "O75")
+    - calledAt: timestamp
+    - sequence: number (1-75, order called)
+
+/games/{gameId}/players (subcollection)
+  - {playerId}
+    - displayName: string (optional)
+    - joinedAt: timestamp
+    - isActive: boolean
+
+/users/{userId} (hosts only)
+  - email: string
+  - displayName: string
+  - createdAt: timestamp
+  - gamesHosted: number
+```
+
+### Bingo Number Format
+- B: 1-15
+- I: 16-30
+- N: 31-45
+- G: 46-60
+- O: 61-75
+
+### Winning Patterns (MVP)
+1. **Traditional Line:** Any horizontal, vertical, or diagonal line
+2. **Four Corners:** All four corner squares
+3. **Blackout/Coverall:** All squares on the card
+
+### Winning Patterns (Future)
+- X Pattern
+- Plus/Cross Pattern
+- Picture Frame (outer edge)
+- Letter patterns (T, L, etc.)
+- Custom patterns
+
+## User Roles & Permissions
+
+### Host
+- Must be authenticated (email/password)
+- Can create games
+- Can modify only their own games
+- Can call numbers
+- Can mark winners
+- Can end games
+- Can view player count
+
+### Player
+- Anonymous authentication (no signup required)
+- Can join games with valid code
+- Read-only access to game data
+- Can view called numbers in real-time
+- Can view round information
+
+## Core Features
+
+### Phase 1: MVP Features
+1. **Host Authentication**
+   - Email/password registration and login
+   - Password reset functionality
+   - Session management
+
+2. **Game Creation & Setup**
+   - Configure number of rounds (1-10)
+   - Set winning pattern per round
+   - Add optional prize description per round
+   - Generate unique 6-digit game code
+   - Display QR code for easy joining
+
+3. **Number Calling Interface (Host)**
+   - 75-button grid (B-I-N-G-O columns)
+   - Visual indication of called vs uncalled numbers
+   - Large display of current number
+   - Call history display
+   - Undo last called number
+   - Round progress indicator
+
+4. **Player Join & View**
+   - Enter game code to join
+   - Real-time display of current number
+   - Grid view of all called numbers
+   - Current round information (pattern, prize)
+   - Player count display
+
+5. **Round Management**
+   - Progress through rounds sequentially
+   - Mark winner for each round
+   - Automatic advancement to next round
+   - End game functionality
+
+6. **Real-time Synchronization**
+   - All players see updates within 1-2 seconds
+   - Handle network disconnections gracefully
+   - Optimistic UI updates for host
+
+### Phase 2: Enhanced Features
+- Multiple winning patterns
+- Improved UI/UX with animations
+- Game statistics dashboard
+- Export game history
+- Sound effects for number calling
+- Large display/presentation mode
+- Dark mode
+
+### Phase 3: Advanced Features
+- Game templates
+- Player profiles (optional)
+- Analytics dashboard
+- Tournament mode
+- Custom pattern creator
+- Voice calling with speech recognition
+
+## User Flows
+
+### Host Flow
+1. Open app → Sign in/Register
+2. Tap "Create New Game"
+3. Configure game settings:
+   - Number of rounds
+   - Pattern for each round
+   - Optional prizes
+4. Review and create → Game code generated
+5. Share code/QR with players
+6. Monitor players joining
+7. Start game when ready
+8. Call numbers by tapping grid
+9. Mark winner when claimed
+10. Progress through rounds
+11. End game → View summary
+
+### Player Flow
+1. Open app (no login)
+2. Tap "Join Game"
+3. Enter 6-digit code or scan QR
+4. See waiting screen with game info
+5. View called numbers in real-time
+6. Follow along with physical card
+7. Call "Bingo!" physically to host when pattern achieved
+8. Continue through all rounds
+
+## UI/UX Considerations
+
+### Design Principles
+- **Clarity:** Large, readable numbers and buttons
+- **Speed:** Quick number calling with minimal taps
+- **Reliability:** Clear feedback on all actions
+- **Accessibility:** High contrast, large touch targets
+- **Simplicity:** Minimal learning curve
+
+### Key Screens
+1. **Host Dashboard:** List of past/active games, create new button
+2. **Game Setup:** Form for configuring rounds and patterns
+3. **Host Game View:** Number grid, current number, player count, controls
+4. **Player Join:** Code entry screen
+5. **Player Game View:** Current number, called numbers grid, round info
+6. **Game Summary:** Stats, winners, duration
+
+### Responsive Breakpoints
+- Mobile: < 600px (single column, vertical scrolling)
+- Tablet: 600-1200px (two-column when appropriate)
+- Desktop: > 1200px (multi-panel dashboard layout)
+
+## Development Phases
+
+### Phase 1: MVP (Weeks 1-3)
+**Week 1:**
+- Project initialization
+- Firebase configuration (all platforms)
+- Authentication system
+- Basic navigation structure
+- Data models
+
+**Week 2:**
+- Game creation flow
+- Number calling interface
+- Firestore integration
+- Real-time listeners
+
+**Week 3:**
+- Player join functionality
+- Game synchronization
+- Basic UI polish
+- Testing and bug fixes
+
+### Phase 2: Enhanced (Weeks 4-6)
+- Additional winning patterns
+- Prize management
+- Undo functionality
+- Animations and transitions
+- QR code integration
+- Display mode
+
+### Phase 3: Advanced (Weeks 7-10)
+- Analytics
+- Game templates
+- Export functionality
+- Advanced features
+- Performance optimization
+- Comprehensive testing
+
+## Security Requirements
+
+### Firestore Security Rules (Key Points)
+- Hosts can only create/modify their own games
+- Players can only read games they've joined
+- Game codes must be valid to join
+- No unauthorized writes to game data
+- Rate limiting on critical operations
+
+### Authentication
+- Secure password requirements (min 8 chars)
+- Email verification (optional for MVP)
+- Session timeout handling
+- Secure token storage
+
+## Performance Targets
+- App launch: < 2 seconds
+- Number call response: < 500ms
+- Real-time update latency: < 2 seconds
+- Support 100+ concurrent players per game
+- Offline mode: Cache last game state
+
+## Testing Strategy
+- Unit tests for business logic
+- Widget tests for UI components
+- Integration tests for Firebase operations
+- End-to-end tests for critical flows
+- Manual testing on multiple devices
+- Network condition testing
+
+## Firebase Costs & Limits
+**Free Tier Limits:**
+- Firestore: 50K reads/day, 20K writes/day, 1GB storage
+- Authentication: Unlimited
+- Hosting: 10GB storage, 360MB/day transfer
+
+**Expected Usage (per game):**
+- ~75 number calls (writes)
+- ~100-200 reads per player
+- Should stay within free tier for moderate use
+
+## Code Organization
+```
+lib/
+├── main.dart
+├── app.dart
+├── core/
+│   ├── constants/
+│   ├── theme/
+│   ├── utils/
+│   └── services/
+│       ├── auth_service.dart
+│       ├── firestore_service.dart
+│       └── game_service.dart
+├── features/
+│   ├── auth/
+│   │   ├── models/
+│   │   ├── screens/
+│   │   ├── widgets/
+│   │   └── providers/
+│   ├── host/
+│   │   ├── models/
+│   │   ├── screens/
+│   │   ├── widgets/
+│   │   └── providers/
+│   └── player/
+│       ├── models/
+│       ├── screens/
+│       ├── widgets/
+│       └── providers/
+└── shared/
+    ├── models/
+    ├── widgets/
+    └── utils/
+```
+
+## Key Models
+
+### Game Model
+```dart
+class Game {
+  String id;
+  String hostId;
+  String gameCode;
+  GameStatus status;
+  DateTime createdAt;
+  int currentRound;
+  int totalRounds;
+  List<Round> rounds;
+  List<String> calledNumbers;
+}
+```
+
+### Round Model
+```dart
+class Round {
+  int roundNumber;
+  WinningPattern pattern;
+  String? prize;
+  String? winnerId;
+  String? winnerName;
+  DateTime? completedAt;
+}
+```
+
+### Called Number Model
+```dart
+class CalledNumber {
+  String number; // "B7"
+  DateTime calledAt;
+  int sequence;
+}
+```
+
+## Environment Setup
+1. Flutter SDK (latest stable)
+2. Firebase CLI
+3. IDE: VS Code or Android Studio
+4. Required Flutter plugins: Dart, Flutter
+5. Firebase project configuration files:
+   - `google-services.json` (Android)
+   - `GoogleService-Info.plist` (iOS)
+   - Firebase config object (Web)
+
+## Current Status
+- **Phase:** Planning Complete
+- **Next Steps:** Begin Phase 1 implementation
+- **Started:** Not yet
+- **Target MVP Completion:** 3 weeks from start
+
+## Open Questions & Decisions Needed
+1. State management: Provider vs Riverpod vs Bloc?
+2. Should we implement voice calling in MVP or Phase 2?
+3. Payment integration timeline (for prize management)?
+4. Should players require any authentication or fully anonymous?
+5. Offline mode priority?
+
+## Notes for AI Coding Agents
+- Follow Flutter best practices and style guide
+- Use const constructors where possible for performance
+- Implement proper error handling for all Firebase operations
+- Add loading states for all async operations
+- Use meaningful variable and function names
+- Comment complex business logic
+- Handle edge cases (network failures, invalid inputs)
+- Optimize Firestore reads/writes to minimize costs
+- Test on both mobile and web platforms
+- Ensure responsive design at all breakpoints

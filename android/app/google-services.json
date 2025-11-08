@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "842953545763",
+    "project_id": "bingoirl-e6917",
+    "storage_bucket": "bingoirl-e6917.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:842953545763:android:5fc7e9f0263d86a5c57996",
+        "android_client_info": {
+          "package_name": "com.example.bingo_host_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCCY3sjQDJ6lOj2sRtMu57FkqbZiyWNqp4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
