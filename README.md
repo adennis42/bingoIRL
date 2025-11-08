@@ -78,6 +78,7 @@ flutter run
 - Add tests (unit + widget)
 - Implement additional host controls (undo confirmation, round summary)
 - Persist player anonymity display names with optional input
+- Design + store custom winning patterns per host (UI + Firestore schema)
 - Add analytics / logging instrumentation
 
 ## Useful References
