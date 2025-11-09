@@ -121,6 +121,8 @@ class GameService {
         'status': GameStatus.active.toFirestore(),
         'currentRound': 1,
       });
+
+      await _clearCalledNumbers(gameId);
     } catch (e) {
       throw Exception('Failed to start game: ${e.toString()}');
     }
@@ -239,6 +241,10 @@ class GameService {
         'currentRound': nextRound,
         if (newStatus != game.status) 'status': newStatus.toFirestore(),
       });
+
+      if (nextRound > roundNumber && nextRound <= game.totalRounds) {
+        await _clearCalledNumbers(gameId);
+      }
     } catch (e) {
       throw Exception('Failed to mark winner: ${e.toString()}');
     }
@@ -263,8 +269,34 @@ class GameService {
           .update({
         'currentRound': game.currentRound + 1,
       });
+
+      await _clearCalledNumbers(gameId);
     } catch (e) {
       throw Exception('Failed to advance round: ${e.toString()}');
+    }
+  }
+
+  /// Delete a game and its subcollections
+  Future<void> deleteGame(String gameId) async {
+    try {
+      final gameRef = _firestore.collection(AppConstants.gamesCollection).doc(gameId);
+
+      Future<void> _deleteCollection(CollectionReference collection) async {
+        final snapshot = await collection.get();
+        if (snapshot.docs.isEmpty) return;
+        final batch = _firestore.batch();
+        for (final doc in snapshot.docs) {
+          batch.delete(doc.reference);
+        }
+        await batch.commit();
+      }
+
+      await _deleteCollection(gameRef.collection(AppConstants.calledNumbersCollection));
+      await _deleteCollection(gameRef.collection(AppConstants.playersCollection));
+
+      await gameRef.delete();
+    } catch (e) {
+      throw Exception('Failed to delete game: ${e.toString()}');
     }
   }
 
@@ -347,6 +379,25 @@ class GameService {
       
       return games;
     });
+  }
+
+  Future<void> _clearCalledNumbers(String gameId) async {
+    final collectionRef = _firestore
+        .collection(AppConstants.gamesCollection)
+        .doc(gameId)
+        .collection(AppConstants.calledNumbersCollection);
+
+    final snapshot = await collectionRef.get();
+    if (snapshot.docs.isEmpty) {
+      return;
+    }
+
+    final batch = _firestore.batch();
+    for (final doc in snapshot.docs) {
+      batch.delete(doc.reference);
+    }
+
+    await batch.commit();
   }
 }
 

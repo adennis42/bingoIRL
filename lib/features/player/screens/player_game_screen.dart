@@ -4,6 +4,8 @@ import '../../../core/constants/bingo_colors.dart';
 import '../../../shared/models/called_number.dart';
 import '../../../features/host/models/game.dart';
 import '../../../shared/models/game_status.dart';
+import '../../../shared/models/round.dart';
+import '../../../shared/models/winning_pattern.dart';
 import '../../../shared/widgets/bingo_ball.dart';
 
 class PlayerGameScreen extends StatefulWidget {
@@ -144,6 +146,10 @@ class _PlayerGameScreenState extends State<PlayerGameScreen> {
                         style: Theme.of(context).textTheme.bodySmall,
                         textAlign: TextAlign.center,
                       ),
+                      const SizedBox(height: 12),
+                      _PatternPreview(
+                        pattern: currentRound,
+                      ),
                       if (currentRound.prize != null) ...[
                         const SizedBox(height: 8),
                         Container(
@@ -283,6 +289,155 @@ class _PlayerGameScreenState extends State<PlayerGameScreen> {
             ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _PatternPreview extends StatelessWidget {
+  const _PatternPreview({required this.pattern});
+
+  final Round pattern;
+
+  static const _gridSize = 5;
+  static const _headers = ['B', 'I', 'N', 'G', 'O'];
+  static const double _cellSize = 20;
+  static const double _spacing = 3;
+
+  bool _isCellHighlighted(int row, int col) {
+    if (pattern.isCustomPattern) {
+      final cells = pattern.customPattern?.cells ?? [];
+      return cells.contains('$row,$col');
+    }
+
+    final builtIn = pattern.pattern;
+    if (builtIn == null) {
+      return false;
+    }
+
+    switch (builtIn) {
+      case WinningPattern.traditionalLine:
+        return row == 2 || col == 2 || row == col || row + col == _gridSize - 1;
+      case WinningPattern.fourCorners:
+        return (row == 0 && col == 0) ||
+            (row == 0 && col == _gridSize - 1) ||
+            (row == _gridSize - 1 && col == 0) ||
+            (row == _gridSize - 1 && col == _gridSize - 1);
+      case WinningPattern.blackout:
+        return true;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: Theme.of(context).colorScheme.surfaceVariant,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Pattern Preview',
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+          const SizedBox(height: 8),
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: _gridSize * _cellSize + (_gridSize - 1) * _spacing,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: List.generate(_gridSize, (index) {
+                      final letter = _headers[index];
+                      return Container(
+                        width: _cellSize,
+                        height: _cellSize,
+                        decoration: BoxDecoration(
+                          color: BingoColors.getColumnColor(letter),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Center(
+                          child: Text(
+                            letter,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1,
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                SizedBox(
+                  width: _gridSize * _cellSize + (_gridSize - 1) * _spacing,
+                  height: _gridSize * _cellSize + (_gridSize - 1) * _spacing,
+                  child: GridView.builder(
+                    padding: EdgeInsets.zero,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: _gridSize,
+                      crossAxisSpacing: _spacing,
+                      mainAxisSpacing: _spacing,
+                    ),
+                    itemCount: _gridSize * _gridSize,
+                    itemBuilder: (context, index) {
+                      final row = index ~/ _gridSize;
+                      final col = index % _gridSize;
+                      final letter = _headers[col];
+                      final isCenter = row == 2 && col == 2;
+                      final highlight = _isCellHighlighted(row, col);
+
+                      Color cellColor;
+                      Color borderColor;
+                      Color textColor;
+
+                      if (pattern.isCustomPattern) {
+                        cellColor = highlight ? const Color(0xFFE53935) : Colors.white;
+                        borderColor = highlight ? const Color(0xFFB71C1C) : Colors.grey.shade300;
+                        textColor = highlight ? Colors.white : Colors.grey.shade400;
+                      } else {
+                        cellColor = highlight
+                            ? BingoColors.getColumnColor(letter, isCalled: true)
+                            : Colors.white;
+                        borderColor = highlight
+                            ? BingoColors.getColumnBorderColor(letter)
+                            : Colors.grey.shade300;
+                        textColor = highlight
+                            ? BingoColors.getColumnTextColor(letter, isCalled: true)
+                            : Colors.grey.shade400;
+                      }
+
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: cellColor,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: borderColor),
+                        ),
+                        child: Center(
+                          child: Text(
+                            isCenter ? '★' : '',
+                            style: TextStyle(
+                              color: textColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

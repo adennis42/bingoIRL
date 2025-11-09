@@ -6,8 +6,10 @@ Flutter + Firebase application for hosting and tracking live bingo games. Hosts 
 
 - ✅ Firebase integration (Auth, Firestore) with working document models
 - ✅ Host dashboard: create games, view hosted games, launch game view
+- ✅ Host dashboard: delete previously hosted games (removes subcollections)
 - ✅ Host game view: bingo grid, animated “last called” ball, number history
 - ✅ Player game view: real-time last number + called numbers list
+- ✅ Pattern preview (host & player) with custom descriptions
 - ✅ Traditional Bingo styling with column colors (B/I/N/G/O)
 - ✅ Firestore composite index deployed (`hostId` + `createdAt`)
 - ⚠️ Temporary workaround: hosted games list is sorted in-memory (see below)
@@ -84,10 +86,41 @@ flutter run
 ## Useful References
 
 - `lib/shared/widgets/bingo_ball.dart` – animated “last called” ball
-- `lib/features/host/screens/host_game_screen.dart` – host controls
+- `lib/features/host/screens/host_dashboard_screen.dart` – host controls
+- `lib/core/services/game_service.dart` – custom pattern + game deletion helpers
 - `lib/features/player/screens/player_game_screen.dart` – player read-only view
-- `docs/FIRESTORE_INDEX_SETUP.md` – index deployment steps
-- `docs/INDEX_BUILDING_WORKAROUND.md` – current workaround documentation
+
+## Next Focus: Mobile Notifications
+
+Goal: Notify inactive mobile players whenever the host calls a new number.
+
+### Proposed Plan
+1. **Push Infrastructure**
+   - Enable Firebase Cloud Messaging (FCM) in the Firebase project for Android/iOS.
+   - Add `firebase_messaging` and `flutter_local_notifications` packages.
+
+2. **App Registration**
+   - Request notification permissions on mobile at startup.
+   - Handle foreground/background message handlers.
+
+3. **Triggering Notifications**
+   - Create a Cloud Function listening to `games/{gameId}/calledNumbers` writes.
+   - Cloud Function sends FCM notifications to players subscribed to that game topic.
+   - Alternatively, the host app can send FCM via callable function.
+
+4. **Client Handling**
+   - Players subscribe to `game_{gameId}` topic when joining a game; unsubscribe on exit.
+   - Display local notifications when a message arrives while app is backgrounded.
+   - Update local state in-app when receiving the push (so the badge aligns with stream updates).
+
+5. **Testing & Rollout**
+   - Verify on Android/iOS with app in foreground, background, and terminated states.
+   - Add environment toggles to disable notifications in development if needed.
+
+Dependencies to add soon:
+- `firebase_messaging`
+- `flutter_local_notifications`
+- `cloud_functions` (if using Cloud Functions trigger)
 
 Feel free to run `flutter analyze` before committing to ensure code health:
 

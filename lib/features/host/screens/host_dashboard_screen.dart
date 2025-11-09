@@ -15,6 +15,48 @@ import 'pattern_builder_screen.dart';
 class HostDashboardScreen extends StatelessWidget {
   const HostDashboardScreen({super.key});
 
+  Future<void> _confirmDeleteGame(BuildContext context, String gameId, String gameCode) async {
+    final gameService = GameService();
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Game'),
+        content: Text('Are you sure you want to delete game $gameCode?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      await gameService.deleteGame(gameId);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Game $gameCode deleted.')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to delete game: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
@@ -160,17 +202,36 @@ class HostDashboardScreen extends StatelessWidget {
                                 'Status: ${game.status.displayName} • '
                                 'Round: ${game.currentRound}/${game.totalRounds}',
                               ),
-                              trailing: Icon(
-                                game.isActive
-                                    ? Icons.play_circle
-                                    : game.isEnded
-                                        ? Icons.check_circle
-                                        : Icons.schedule,
-                                color: game.isActive
-                                    ? Colors.green
-                                    : game.isEnded
-                                        ? Colors.grey
-                                        : Colors.orange,
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    game.isActive
+                                        ? Icons.play_circle
+                                        : game.isEnded
+                                            ? Icons.check_circle
+                                            : Icons.schedule,
+                                    color: game.isActive
+                                        ? Colors.green
+                                        : game.isEnded
+                                            ? Colors.grey
+                                            : Colors.orange,
+                                  ),
+                                  PopupMenuButton<String>(
+                                    onSelected: (value) {
+                                      if (value == 'delete') {
+                                        _confirmDeleteGame(context, game.id, game.gameCode);
+                                      }
+                                    },
+                                    itemBuilder: (context) => const [
+                                      PopupMenuItem(
+                                        value: 'delete',
+                                        child: Text('Delete Game'),
+                                      ),
+                                    ],
+                                    icon: const Icon(Icons.more_vert),
+                                  ),
+                                ],
                               ),
                               onTap: () {
                                 if (game.isActive || game.status.name == 'setup') {

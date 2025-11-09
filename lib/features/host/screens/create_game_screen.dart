@@ -623,32 +623,42 @@ class _PatternDropdown extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        DropdownButtonFormField<String>(
-          value: resolvedValue,
-          items: items,
-          onChanged: (value) {
-            if (value == null || value == 'divider' || value == 'no_custom') return;
-            if (value.startsWith('builtIn:')) {
-              final patternName = value.substring('builtIn:'.length);
-              final selected = WinningPattern.values.firstWhere(
-                (p) => p.name == patternName,
-                orElse: () => WinningPattern.traditionalLine,
-              );
-              onBuiltInPatternSelected(selected);
-            } else if (value.startsWith('custom:')) {
-              final customId = value.substring('custom:'.length);
-              final selected = customById[customId];
-              if (selected != null) {
-                onCustomPatternSelected(selected);
-              }
-            } else if (value == 'action:create') {
-              onCreateCustomPattern().then((created) {
-                if (created != null) {
-                  onCustomPatternSelected(created);
+        InputDecorator(
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'Winning Pattern',
+            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: resolvedValue,
+              isExpanded: true,
+              items: items,
+              onChanged: (value) {
+                if (value == null || value == 'divider' || value == 'no_custom') return;
+                if (value.startsWith('builtIn:')) {
+                  final patternName = value.substring('builtIn:'.length);
+                  final selected = WinningPattern.values.firstWhere(
+                    (p) => p.name == patternName,
+                    orElse: () => WinningPattern.traditionalLine,
+                  );
+                  onBuiltInPatternSelected(selected);
+                } else if (value.startsWith('custom:')) {
+                  final customId = value.substring('custom:'.length);
+                  final selected = customById[customId];
+                  if (selected != null) {
+                    onCustomPatternSelected(selected);
+                  }
+                } else if (value == 'action:create') {
+                  onCreateCustomPattern().then((created) {
+                    if (created != null) {
+                      onCustomPatternSelected(created);
+                    }
+                  });
                 }
-              });
-            }
-          },
+              },
+            ),
+          ),
         ),
         if (currentCustomPattern != null) ...[
           const SizedBox(height: 12),
