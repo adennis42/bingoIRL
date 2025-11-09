@@ -128,12 +128,17 @@ class _PlayerGameScreenState extends State<PlayerGameScreen> {
                     if (currentRound != null) ...[
                       const SizedBox(height: 8),
                       Text(
-                        'Pattern: ${currentRound.pattern.displayName}',
+                        currentRound.isCustomPattern
+                            ? 'Pattern: ${currentRound.customPattern!.name}'
+                            : 'Pattern: ${currentRound.pattern?.displayName ?? 'Custom Pattern'}',
                         style: Theme.of(context).textTheme.titleMedium,
+                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        currentRound.pattern.description,
+                        currentRound.isCustomPattern
+                            ? 'Custom winning pattern selected by host.'
+                            : currentRound.pattern?.description ?? '',
                         style: Theme.of(context).textTheme.bodySmall,
                         textAlign: TextAlign.center,
                       ),

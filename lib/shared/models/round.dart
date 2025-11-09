@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'winning_pattern.dart';
+import 'custom_pattern.dart';
 
 /// Round model for a Bingo game
 class Round {
   final int roundNumber;
-  final WinningPattern pattern;
+  final WinningPattern? pattern;
+  final CustomPattern? customPattern;
   final String? prize;
   final String? winnerId;
   final String? winnerName;
@@ -12,21 +14,39 @@ class Round {
 
   Round({
     required this.roundNumber,
-    required this.pattern,
+    this.pattern,
+    this.customPattern,
     this.prize,
     this.winnerId,
     this.winnerName,
     this.completedAt,
-  });
+  }) : assert(pattern != null || customPattern != null,
+            'Either pattern or customPattern must be provided.');
 
   /// Check if round is completed
   bool get isCompleted => completedAt != null && winnerId != null;
 
+  bool get isCustomPattern => customPattern != null;
+
   /// Create from Firestore map
   factory Round.fromFirestore(Map<String, dynamic> map) {
+    CustomPattern? custom;
+    WinningPattern? builtIn;
+
+    if (map['customPattern'] != null) {
+      custom = CustomPattern.fromFirestore(
+        (map['customPattern'] as Map<String, dynamic>),
+      );
+    }
+
+    if (map['pattern'] != null) {
+      builtIn = WinningPattern.fromFirestore(map['pattern'] as String);
+    }
+
     return Round(
       roundNumber: map['roundNumber'] as int,
-      pattern: WinningPattern.fromFirestore(map['pattern'] as String),
+      pattern: builtIn,
+      customPattern: custom,
       prize: map['prize'] as String?,
       winnerId: map['winnerId'] as String?,
       winnerName: map['winnerName'] as String?,
@@ -38,7 +58,8 @@ class Round {
   Map<String, dynamic> toFirestore() {
     return {
       'roundNumber': roundNumber,
-      'pattern': pattern.toFirestore(),
+      if (pattern != null) 'pattern': pattern!.toFirestore(),
+      if (customPattern != null) 'customPattern': customPattern!.toFirestore(),
       if (prize != null) 'prize': prize,
       if (winnerId != null) 'winnerId': winnerId,
       if (winnerName != null) 'winnerName': winnerName,
@@ -50,6 +71,7 @@ class Round {
   Round copyWith({
     int? roundNumber,
     WinningPattern? pattern,
+    CustomPattern? customPattern,
     String? prize,
     String? winnerId,
     String? winnerName,
@@ -58,6 +80,7 @@ class Round {
     return Round(
       roundNumber: roundNumber ?? this.roundNumber,
       pattern: pattern ?? this.pattern,
+      customPattern: customPattern ?? this.customPattern,
       prize: prize ?? this.prize,
       winnerId: winnerId ?? this.winnerId,
       winnerName: winnerName ?? this.winnerName,

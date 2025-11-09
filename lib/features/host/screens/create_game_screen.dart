@@ -3,7 +3,11 @@ import '../../../core/services/game_service.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../shared/models/round.dart';
 import '../../../shared/models/winning_pattern.dart';
+import '../../../shared/models/custom_pattern.dart';
 import '../../../core/constants/bingo_constants.dart';
+import '../models/custom_pattern.dart' as draft;
+import 'pattern_builder_screen.dart';
+import '../models/custom_pattern.dart' as draft;
 import 'host_game_screen.dart';
 
 class CreateGameScreen extends StatefulWidget {
@@ -18,6 +22,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
   int _totalRounds = 1;
   final List<RoundConfig> _rounds = [];
   bool _isCreating = false;
+  final List<CustomPattern> _customPatterns = [];
 
   @override
   void initState() {
@@ -30,7 +35,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
     for (int i = 1; i <= _totalRounds; i++) {
       _rounds.add(RoundConfig(
         roundNumber: i,
-        pattern: WinningPattern.traditionalLine,
+        builtInPattern: WinningPattern.traditionalLine,
         prize: '',
       ));
     }
@@ -44,7 +49,7 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
         for (int i = _rounds.length + 1; i <= value; i++) {
           _rounds.add(RoundConfig(
             roundNumber: i,
-            pattern: WinningPattern.traditionalLine,
+            builtInPattern: WinningPattern.traditionalLine,
             prize: '',
           ));
         }
@@ -74,9 +79,16 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
       }
 
       final rounds = _rounds.map((config) {
+        if (config.isCustom) {
+          return Round(
+            roundNumber: config.roundNumber,
+            customPattern: config.customPattern,
+            prize: config.prize.isEmpty ? null : config.prize,
+          );
+        }
         return Round(
           roundNumber: config.roundNumber,
-          pattern: config.pattern,
+          pattern: config.builtInPattern ?? WinningPattern.traditionalLine,
           prize: config.prize.isEmpty ? null : config.prize,
         );
       }).toList();
@@ -118,6 +130,33 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
         });
       }
     }
+  }
+
+  Future<CustomPattern?> _handleCreateCustomPattern() async {
+    final draft.CustomPatternDraft? patternDraft = await Navigator.push<draft.CustomPatternDraft>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const PatternBuilderScreen(),
+      ),
+    );
+
+    if (!mounted || patternDraft == null || !patternDraft.hasSelection) {
+      return null;
+    }
+
+    final custom = patternDraft.toCustomPattern();
+    if (_customPatterns.any((existing) => existing.id == custom.id)) {
+      return custom;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Custom pattern "${custom.name}" created'),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+
+    return custom;
   }
 
   @override
@@ -174,14 +213,29 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
                 final round = entry.value;
                 return _RoundConfigurationCard(
                   round: round,
-                  onPatternChanged: (pattern) {
+                  customPatterns: _customPatterns,
+                  onBuiltInPatternSelected: (pattern) {
                     setState(() {
-                      _rounds[index] = round.copyWith(pattern: pattern);
+                      _rounds[index] = round.withBuiltInPattern(pattern);
                     });
+                  },
+                  onCustomPatternSelected: (pattern) {
+                    setState(() {
+                      _rounds[index] = round.withCustomPattern(pattern);
+                    });
+                  },
+                  onCreateCustomPattern: () async {
+                    final created = await _handleCreateCustomPattern();
+                    if (created != null) {
+                      setState(() {
+                        _customPatterns.add(created);
+                        _rounds[index] = round.withCustomPattern(created);
+                      });
+                    }
                   },
                   onPrizeChanged: (prize) {
                     setState(() {
-                      _rounds[index] = round.copyWith(prize: prize);
+                      _rounds[index] = round.copyWithPrize(prize);
                     });
                   },
                 );
@@ -207,36 +261,62 @@ class _CreateGameScreenState extends State<CreateGameScreen> {
 
 class RoundConfig {
   final int roundNumber;
-  final WinningPattern pattern;
+  final WinningPattern? builtInPattern;
+  final CustomPattern? customPattern;
   final String prize;
 
   RoundConfig({
     required this.roundNumber,
-    required this.pattern,
+    this.builtInPattern,
+    this.customPattern,
     required this.prize,
-  });
+  }) : assert(builtInPattern != null || customPattern != null,
+            'Either builtInPattern or customPattern must be provided');
 
-  RoundConfig copyWith({
-    int? roundNumber,
-    WinningPattern? pattern,
-    String? prize,
-  }) {
+  bool get isCustom => customPattern != null;
+
+  RoundConfig withBuiltInPattern(WinningPattern pattern) {
     return RoundConfig(
-      roundNumber: roundNumber ?? this.roundNumber,
-      pattern: pattern ?? this.pattern,
-      prize: prize ?? this.prize,
+      roundNumber: roundNumber,
+      builtInPattern: pattern,
+      customPattern: null,
+      prize: prize,
+    );
+  }
+
+  RoundConfig withCustomPattern(CustomPattern pattern) {
+    return RoundConfig(
+      roundNumber: roundNumber,
+      builtInPattern: null,
+      customPattern: pattern,
+      prize: prize,
+    );
+  }
+
+  RoundConfig copyWithPrize(String newPrize) {
+    return RoundConfig(
+      roundNumber: roundNumber,
+      builtInPattern: builtInPattern,
+      customPattern: customPattern,
+      prize: newPrize,
     );
   }
 }
 
 class _RoundConfigurationCard extends StatelessWidget {
   final RoundConfig round;
-  final ValueChanged<WinningPattern> onPatternChanged;
+  final List<CustomPattern> customPatterns;
+  final ValueChanged<WinningPattern> onBuiltInPatternSelected;
+  final ValueChanged<CustomPattern> onCustomPatternSelected;
+  final Future<void> Function() onCreateCustomPattern;
   final ValueChanged<String> onPrizeChanged;
 
   const _RoundConfigurationCard({
     required this.round,
-    required this.onPatternChanged,
+    required this.customPatterns,
+    required this.onBuiltInPatternSelected,
+    required this.onCustomPatternSelected,
+    required this.onCreateCustomPattern,
     required this.onPrizeChanged,
   });
 
@@ -259,28 +339,12 @@ class _RoundConfigurationCard extends StatelessWidget {
               style: Theme.of(context).textTheme.titleSmall,
             ),
             const SizedBox(height: 8),
-            DropdownButtonFormField<WinningPattern>(
-              initialValue: round.pattern,
-              items: WinningPattern.values.map((pattern) {
-                return DropdownMenuItem(
-                  value: pattern,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(pattern.displayName),
-                      Text(
-                        pattern.description,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  onPatternChanged(value);
-                }
-              },
+            _PatternDropdown(
+              round: round,
+              customPatterns: customPatterns,
+              onBuiltInPatternSelected: onBuiltInPatternSelected,
+              onCustomPatternSelected: onCustomPatternSelected,
+              onCreateCustomPattern: onCreateCustomPattern,
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -294,6 +358,120 @@ class _RoundConfigurationCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _PatternDropdown extends StatelessWidget {
+  const _PatternDropdown({
+    required this.round,
+    required this.customPatterns,
+    required this.onBuiltInPatternSelected,
+    required this.onCustomPatternSelected,
+    required this.onCreateCustomPattern,
+  });
+
+  final RoundConfig round;
+  final List<CustomPattern> customPatterns;
+  final ValueChanged<WinningPattern> onBuiltInPatternSelected;
+  final ValueChanged<CustomPattern> onCustomPatternSelected;
+  final Future<void> Function() onCreateCustomPattern;
+
+  String get _selectedValue {
+    if (round.isCustom && round.customPattern != null) {
+      return 'custom:${round.customPattern!.id}';
+    }
+    final builtIn = round.builtInPattern ?? WinningPattern.traditionalLine;
+    return 'builtIn:${builtIn.name}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final builtInItems = WinningPattern.values.map((pattern) {
+      return DropdownMenuItem<String>(
+        value: 'builtIn:${pattern.name}',
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(pattern.displayName),
+            Text(
+              pattern.description,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
+      );
+    }).toList();
+
+    final List<DropdownMenuItem<String>> items = [
+      ...builtInItems,
+      DropdownMenuItem<String>(
+        value: 'divider',
+        enabled: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4.0),
+          child: Text(
+            'Custom Patterns',
+            style: Theme.of(context).textTheme.labelSmall,
+          ),
+        ),
+      ),
+      if (customPatterns.isEmpty)
+        DropdownMenuItem<String>(
+          value: 'no_custom',
+          enabled: false,
+          child: Text(
+            'No custom patterns (yet)',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        )
+      else
+        ...customPatterns.map((pattern) {
+          return DropdownMenuItem<String>(
+            value: 'custom:${pattern.id}',
+            child: Text(pattern.name),
+          );
+        }),
+      DropdownMenuItem<String>(
+        value: 'action:create',
+        child: Row(
+          children: [
+            const Icon(Icons.add, size: 18),
+            const SizedBox(width: 6),
+            Text(
+              'Create custom pattern…',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ],
+        ),
+      ),
+    ];
+
+    return DropdownButtonFormField<String>(
+      value: _selectedValue,
+      items: items,
+      onChanged: (value) {
+        if (value == null) return;
+        if (value.startsWith('builtIn:')) {
+          final patternName = value.substring('builtIn:'.length);
+          final selected = WinningPattern.values.firstWhere(
+            (p) => p.name == patternName,
+            orElse: () => WinningPattern.traditionalLine,
+          );
+          onBuiltInPatternSelected(selected);
+        } else if (value.startsWith('custom:')) {
+          final customId = value.substring('custom:'.length);
+          if (customPatterns.isNotEmpty) {
+            final selected = customPatterns.firstWhere(
+              (pattern) => pattern.id == customId,
+              orElse: () => customPatterns.first,
+            );
+            onCustomPatternSelected(selected);
+          }
+        } else if (value == 'action:create') {
+          onCreateCustomPattern();
+        }
+      },
     );
   }
 }

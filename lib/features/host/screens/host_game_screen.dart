@@ -317,11 +317,23 @@ class _HostGameScreenState extends State<HostGameScreen> {
                       if (currentRound != null) ...[
                         const SizedBox(height: 8),
                         Text(
-                          'Pattern: ${currentRound.pattern.displayName}',
+                          currentRound.isCustomPattern
+                              ? 'Pattern: ${currentRound.customPattern!.name}'
+                              : 'Pattern: ${currentRound.pattern?.displayName ?? 'Custom Pattern'}',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
+                        if (!currentRound.isCustomPattern)
+                          Text(
+                            currentRound.pattern?.description ?? '',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          )
+                        else
+                          Text(
+                            'Custom winning pattern',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
                         if (currentRound.prize != null) ...[
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 6),
                           Text(
                             'Prize: ${currentRound.prize}',
                             style: Theme.of(context).textTheme.bodyLarge,

@@ -6,6 +6,8 @@ import 'create_game_screen.dart';
 import 'host_game_screen.dart';
 import '../../../core/services/game_service.dart';
 import '../models/game.dart';
+import '../models/custom_pattern.dart';
+import 'pattern_builder_screen.dart';
 
 class HostDashboardScreen extends StatelessWidget {
   const HostDashboardScreen({super.key});
@@ -19,6 +21,28 @@ class HostDashboardScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Bingo Host'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.grid_view_rounded),
+            tooltip: 'Custom Patterns',
+            onPressed: () async {
+              final draft = await Navigator.push<CustomPatternDraft>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PatternBuilderScreen(),
+                ),
+              );
+
+              if (draft != null && context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Pattern "${draft.name}" saved (local only for now).',
+                    ),
+                  ),
+                );
+              }
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
