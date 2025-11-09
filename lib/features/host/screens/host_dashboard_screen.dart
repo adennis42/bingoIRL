@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../auth/providers/auth_provider.dart';
 import '../../auth/screens/login_screen.dart';
 import 'create_game_screen.dart';
 import 'host_game_screen.dart';
 import '../../../core/services/game_service.dart';
+import '../../../core/services/firestore_service.dart';
+import '../../../core/services/auth_service.dart';
 import '../models/game.dart';
 import '../models/custom_pattern.dart';
 import 'pattern_builder_screen.dart';
@@ -16,6 +19,7 @@ class HostDashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final gameService = GameService();
+    final firestoreService = FirestoreService();
 
     return Scaffold(
       appBar: AppBar(
@@ -33,13 +37,36 @@ class HostDashboardScreen extends StatelessWidget {
               );
 
               if (draft != null && context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Pattern "${draft.name}" saved (local only for now).',
+                final hostId = AuthService().currentUserId;
+                if (hostId == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Unable to determine host account. Try again.'),
+                      backgroundColor: Colors.red,
                     ),
-                  ),
-                );
+                  );
+                  return;
+                }
+                try {
+                  final saved = await firestoreService.createCustomPattern(
+                    userId: hostId,
+                    draftPattern: draft,
+                  );
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Custom pattern "${saved.name}" saved successfully.'),
+                    ),
+                  );
+                } catch (e) {
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Failed to save pattern: $e'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
               }
             },
           ),

@@ -137,7 +137,9 @@ class _PlayerGameScreenState extends State<PlayerGameScreen> {
                       const SizedBox(height: 4),
                       Text(
                         currentRound.isCustomPattern
-                            ? 'Custom winning pattern selected by host.'
+                            ? (currentRound.customPattern?.description?.isNotEmpty ?? false)
+                                ? currentRound.customPattern!.description!
+                                : 'Custom winning pattern selected by host.'
                             : currentRound.pattern?.description ?? '',
                         style: Theme.of(context).textTheme.bodySmall,
                         textAlign: TextAlign.center,

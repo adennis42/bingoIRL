@@ -34,9 +34,8 @@ class Round {
     WinningPattern? builtIn;
 
     if (map['customPattern'] != null) {
-      custom = CustomPattern.fromFirestore(
-        (map['customPattern'] as Map<String, dynamic>),
-      );
+      final customMap = map['customPattern'] as Map<String, dynamic>;
+      custom = CustomPattern.fromFirestoreMap(customMap);
     }
 
     if (map['pattern'] != null) {
@@ -59,7 +58,11 @@ class Round {
     return {
       'roundNumber': roundNumber,
       if (pattern != null) 'pattern': pattern!.toFirestore(),
-      if (customPattern != null) 'customPattern': customPattern!.toFirestore(),
+      if (customPattern != null)
+        'customPattern': {
+          'id': customPattern!.id,
+          ...customPattern!.toFirestore(),
+        },
       if (prize != null) 'prize': prize,
       if (winnerId != null) 'winnerId': winnerId,
       if (winnerName != null) 'winnerName': winnerName,

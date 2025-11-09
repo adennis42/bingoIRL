@@ -329,7 +329,9 @@ class _HostGameScreenState extends State<HostGameScreen> {
                           )
                         else
                           Text(
-                            'Custom winning pattern',
+                            (currentRound.customPattern?.description ?? '').isNotEmpty
+                                ? currentRound.customPattern!.description!
+                                : 'Custom winning pattern',
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         if (currentRound.prize != null) ...[

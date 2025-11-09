@@ -17,6 +17,7 @@ class _PatternBuilderScreenState extends State<PatternBuilderScreen>
   static const List<String> bingoHeaders = ['B', 'I', 'N', 'G', 'O'];
 
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
   final Set<String> _selectedCells = <String>{};
   bool _showWarnings = false;
   late AnimationController _twistController;
@@ -24,6 +25,7 @@ class _PatternBuilderScreenState extends State<PatternBuilderScreen>
   @override
   void dispose() {
     _nameController.dispose();
+    _descriptionController.dispose();
     _twistController.dispose();
     super.dispose();
   }
@@ -72,12 +74,13 @@ class _PatternBuilderScreenState extends State<PatternBuilderScreen>
 
     if (!_isValid) return;
 
-    final draft = CustomPatternDraft(
+    final draftPattern = CustomPatternDraft(
       name: _nameController.text.trim(),
+      description: _descriptionController.text.trim(),
       selectedCells: Set<String>.from(_selectedCells),
     );
 
-    Navigator.of(context).pop(draft);
+    Navigator.of(context).pop(draftPattern);
   }
 
   @override
@@ -109,6 +112,15 @@ class _PatternBuilderScreenState extends State<PatternBuilderScreen>
                         : null,
                   ),
                 ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _descriptionController,
+                maxLines: 2,
+                decoration: const InputDecoration(
+                  labelText: 'Description (Optional)',
+                  hintText: 'Describe how to win with this pattern',
+                ),
+              ),
                 const SizedBox(height: 16),
               Text(
                 'Select cells to include in the winning pattern.',
@@ -175,19 +187,8 @@ class _PatternBuilderScreenState extends State<PatternBuilderScreen>
                                 itemBuilder: (context, index) {
                                   final row = index ~/ gridSize;
                                   final col = index % gridSize;
-                                  final letter = bingoHeaders[col];
                                   final key = _cellKey(row, col);
-                                  final isSelected = _selectedCells.contains(key);
                                   final isCenter = row == 2 && col == 2;
-
-                                  Color backgroundColor;
-                                  if (isSelected) {
-                                    backgroundColor = BingoColors.getColumnColor(letter, isCalled: true);
-                                  } else if (isCenter) {
-                                    backgroundColor = Colors.grey.shade200;
-                                  } else {
-                                    backgroundColor = Colors.white;
-                                  }
 
                                   return GestureDetector(
                                     onTap: () => _toggleCell(row, col),

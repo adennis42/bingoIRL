@@ -1,7 +1,12 @@
 import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
+
 import '../../core/constants/app_constants.dart';
 import '../../core/constants/bingo_constants.dart';
+import '../../shared/models/custom_pattern.dart';
+import '../../features/host/models/custom_pattern.dart' as draft;
 
 /// Service for Firestore operations
 class FirestoreService {
@@ -108,6 +113,106 @@ class FirestoreService {
     } catch (e) {
       // Non-critical error, silently fail
       // Could add logging service here in the future
+    }
+  }
+
+  /// Fetch custom patterns for a host
+  Future<List<CustomPattern>> fetchCustomPatterns(String userId) async {
+    try {
+      if (kDebugMode) {
+        debugPrint('Fetching custom patterns for user: $userId');
+      }
+
+      final snapshot = await _firestore
+          .collection(AppConstants.usersCollection)
+          .doc(userId)
+          .collection(AppConstants.customPatternsCollection)
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      return snapshot.docs
+          .map((doc) => CustomPattern.fromFirestoreDoc(doc))
+          .toList();
+    } on FirebaseException catch (e, stack) {
+      if (kDebugMode) {
+        debugPrint('fetchCustomPatterns failed: code=${e.code}, message=${e.message}');
+        debugPrint(stack.toString());
+      }
+      throw Exception('Failed to load custom patterns: ${e.message ?? e.code}');
+    } catch (e, stack) {
+      if (kDebugMode) {
+        debugPrint('fetchCustomPatterns unexpected error: $e');
+        debugPrint(stack.toString());
+      }
+      throw Exception('Failed to load custom patterns.');
+    }
+  }
+
+  /// Create a custom pattern for a host
+  Future<CustomPattern> createCustomPattern({
+    required String userId,
+    required draft.CustomPatternDraft draftPattern,
+  }) async {
+    try {
+      if (kDebugMode) {
+        debugPrint(
+            'Creating custom pattern "${draftPattern.name}" with ${draftPattern.selectedCells.length} cells for $userId');
+      }
+
+      final collectionRef = _firestore
+          .collection(AppConstants.usersCollection)
+          .doc(userId)
+          .collection(AppConstants.customPatternsCollection);
+
+      final docRef = collectionRef.doc();
+      await docRef.set(draftPattern.toFirestoreMap());
+
+      final snapshot = await docRef.get();
+      return CustomPattern.fromFirestoreDoc(snapshot);
+    } on FirebaseException catch (e, stack) {
+      if (kDebugMode) {
+        debugPrint(
+            'createCustomPattern failed: code=${e.code}, message=${e.message}');
+        debugPrint(stack.toString());
+      }
+      throw Exception('Failed to create custom pattern: ${e.message ?? e.code}');
+    } catch (e, stack) {
+      if (kDebugMode) {
+        debugPrint('createCustomPattern unexpected error: $e');
+        debugPrint(stack.toString());
+      }
+      throw Exception('Failed to create custom pattern.');
+    }
+  }
+
+  /// Delete a custom pattern for a host
+  Future<void> deleteCustomPattern({
+    required String userId,
+    required String patternId,
+  }) async {
+    try {
+      if (kDebugMode) {
+        debugPrint('Deleting custom pattern "$patternId" for user: $userId');
+      }
+
+      await _firestore
+          .collection(AppConstants.usersCollection)
+          .doc(userId)
+          .collection(AppConstants.customPatternsCollection)
+          .doc(patternId)
+          .delete();
+    } on FirebaseException catch (e, stack) {
+      if (kDebugMode) {
+        debugPrint('deleteCustomPattern failed: code=${e.code}, message=${e.message}');
+        debugPrint(stack.toString());
+      }
+      throw Exception('Failed to delete custom pattern: ${e.message ?? e.code}');
+    } catch (e, stack) {
+      if (kDebugMode) {
+        debugPrint('deleteCustomPattern unexpected error: $e');
+        debugPrint(stack.toString());
+      }
+      throw Exception('Failed to delete custom pattern.');
     }
   }
 }

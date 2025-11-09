@@ -1,24 +1,32 @@
-import '../../../shared/models/custom_pattern.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CustomPatternDraft {
   CustomPatternDraft({
     required this.name,
+    this.description = '',
     Set<String>? selectedCells,
   }) : selectedCells = selectedCells ?? <String>{};
 
   String name;
+  String description;
   final Set<String> selectedCells;
 
   bool get hasSelection => selectedCells.isNotEmpty;
 
-  List<String> get cellsAsList => selectedCells.toList()..sort();
+  List<String> get cellsAsList {
+    final list = selectedCells.toList();
+    list.sort();
+    return list;
+  }
 
   CustomPatternDraft copyWith({
     String? name,
+    String? description,
     Set<String>? selectedCells,
   }) {
     return CustomPatternDraft(
       name: name ?? this.name,
+      description: description ?? this.description,
       selectedCells: selectedCells ?? Set<String>.from(this.selectedCells),
     );
   }
@@ -40,12 +48,14 @@ class CustomPatternDraft {
 
   static String keyForCell(int row, int col) => _cellKey(row, col);
 
-  CustomPattern toCustomPattern() {
-    return CustomPattern(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      name: name,
-      cells: cellsAsList,
-    );
+  Map<String, dynamic> toFirestoreMap() {
+    final desc = description.trim();
+    return {
+      'name': name,
+      'cells': cellsAsList,
+      if (desc.isNotEmpty) 'description': desc,
+      'createdAt': FieldValue.serverTimestamp(),
+    };
   }
 }
 

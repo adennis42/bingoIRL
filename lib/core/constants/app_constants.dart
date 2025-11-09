@@ -9,6 +9,7 @@ class AppConstants {
   static const String usersCollection = 'users';
   static const String calledNumbersCollection = 'calledNumbers';
   static const String playersCollection = 'players';
+  static const String customPatternsCollection = 'customPatterns';
 
   // Firestore field names
   static const String fieldHostId = 'hostId';
