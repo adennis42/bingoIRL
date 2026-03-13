@@ -15,6 +15,7 @@ import { WinnerModal } from "@/components/host/WinnerModal";
 import { RoundCompleteModal } from "@/components/host/RoundCompleteModal";
 import { ConfirmModal } from "@/components/shared/ConfirmModal";
 import { BackButton } from "@/components/shared/BackButton";
+import { GameLobby } from "@/components/host/GameLobby";
 import Link from "next/link";
 import type { BingoColumn } from "@/types";
 
@@ -250,7 +251,19 @@ export default function HostGamePage() {
   const currentNumber = calledNumbers[0]?.number || null;
   const currentRound = game.rounds[game.currentRound - 1];
   const isGameEnded = game.status === "ended";
-  const isGameSetup = game.status === "setup";
+
+  // ── Full-screen lobby while game is in setup ──────────────────────────────
+  if (game.status === "setup") {
+    return (
+      <GameLobby
+        game={game}
+        players={players}
+        onStartGame={handleStartGame}
+        starting={startingGame}
+        error={gameError}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-base p-4 md:p-6">
@@ -260,7 +273,7 @@ export default function HostGamePage() {
           <BackButton href="/host/dashboard" label="Dashboard" />
           <div className="flex items-center gap-3">
             <span className="text-text-disabled text-xs font-mono uppercase tracking-widest">
-              {game.status === "active" ? "🟢 Live" : game.status === "setup" ? "⚙️ Setup" : "🔴 Ended"}
+              {game.status === "active" ? "🟢 Live" : "🔴 Ended"}
             </span>
           </div>
         </div>
@@ -270,22 +283,6 @@ export default function HostGamePage() {
           <div className="bg-warn/10 border border-warn/40 rounded-2xl p-5 text-center">
             <h2 className="font-display text-xl font-bold text-warn">🏁 Game Over</h2>
             <p className="text-text-secondary text-sm mt-1">All rounds complete.</p>
-          </div>
-        )}
-
-        {/* Setup Banner */}
-        {isGameSetup && (
-          <div className="bg-primary/10 border border-primary/30 rounded-2xl p-6 text-center space-y-4">
-            <div>
-              <h2 className="font-display text-xl font-bold mb-1">Ready to Start</h2>
-              <p className="text-text-secondary text-sm">Share the code below, then start when everyone&apos;s ready.</p>
-            </div>
-            {gameError && (
-              <div className="p-3 bg-warn/10 border border-warn/40 rounded-xl text-warn text-sm">{gameError}</div>
-            )}
-            <Button onClick={handleStartGame} size="lg" disabled={startingGame} className="mx-auto">
-              {startingGame ? "Starting..." : "🎙️ Start Game"}
-            </Button>
           </div>
         )}
 
@@ -497,7 +494,7 @@ export default function HostGamePage() {
                     <button
                       key={number}
                       onClick={() => !isCalled && handleCallNumber(number)}
-                      disabled={isCalled || isGameEnded || isGameSetup}
+                      disabled={isCalled || isGameEnded || false}
                       className="aspect-square rounded-lg font-mono text-xs font-bold transition-all duration-150 select-none"
                       style={
                         isCalled
@@ -514,7 +511,7 @@ export default function HostGamePage() {
                             }
                       }
                       onMouseEnter={(e) => {
-                        if (!isCalled && !isGameEnded && !isGameSetup) {
+                        if (!isCalled && !isGameEnded && !false) {
                           e.currentTarget.style.backgroundColor = `${colColor}20`;
                           e.currentTarget.style.color = colColor;
                           e.currentTarget.style.borderColor = `${colColor}80`;
