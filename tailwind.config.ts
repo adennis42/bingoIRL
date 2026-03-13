@@ -9,11 +9,16 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-dm-sans)", "DM Sans", "sans-serif"],
+        display: ["var(--font-syne)", "Syne", "sans-serif"],
+        mono: ["var(--font-mono)", "JetBrains Mono", "monospace"],
+      },
       colors: {
-        background: "var(--bg-base)",
+        base: "var(--bg-base)",
         surface: "var(--bg-surface)",
         elevated: "var(--bg-elevated)",
-        border: "var(--bg-border)",
+        "bg-border": "var(--bg-border)",
         primary: "var(--accent-primary)",
         secondary: "var(--accent-secondary)",
         warn: "var(--accent-warn)",
@@ -27,10 +32,47 @@ const config: Config = {
         "col-g": "var(--col-g)",
         "col-o": "var(--col-o)",
       },
+      boxShadow: {
+        "glow-primary": "0 0 20px rgba(108, 99, 255, 0.4)",
+        "glow-secondary": "0 0 20px rgba(0, 212, 170, 0.4)",
+        "glow-gold": "0 0 20px rgba(255, 209, 102, 0.4)",
+        "glow-warn": "0 0 20px rgba(255, 107, 107, 0.4)",
+        "glow-b": "0 0 16px rgba(108, 99, 255, 0.5)",
+        "glow-i": "0 0 16px rgba(0, 212, 170, 0.5)",
+        "glow-n": "0 0 16px rgba(255, 209, 102, 0.5)",
+        "glow-g": "0 0 16px rgba(255, 107, 107, 0.5)",
+        "glow-o": "0 0 16px rgba(167, 139, 250, 0.5)",
+        elevated: "0 4px 24px rgba(108, 99, 255, 0.12)",
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      animation: {
+        "number-pop": "numberPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "glow-pulse": "glowPulse 2s ease-in-out infinite",
+        "float": "float 3s ease-in-out infinite",
+        "fade-up": "fadeUp 0.3s ease-out",
+        "spin-slow": "spin 8s linear infinite",
+      },
+      keyframes: {
+        numberPop: {
+          "0%": { transform: "scale(0.5)", opacity: "0" },
+          "100%": { transform: "scale(1)", opacity: "1" },
+        },
+        glowPulse: {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.6" },
+        },
+        float: {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-8px)" },
+        },
+        fadeUp: {
+          "0%": { transform: "translateY(8px)", opacity: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1" },
+        },
       },
     },
   },

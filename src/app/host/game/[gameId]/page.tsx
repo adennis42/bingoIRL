@@ -232,250 +232,279 @@ export default function HostGamePage() {
   const isGameSetup = game.status === "setup";
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        <Breadcrumbs
-          items={[
-            { label: "Game", href: `/host/game/${gameId}` },
-          ]}
-        />
-        <BackButton href="/host/dashboard" label="Back to Dashboard" />
-      </div>
-
-      {isGameEnded && (
-        <div className="max-w-7xl mx-auto mb-6">
-          <div className="bg-warn/10 border border-warn rounded-2xl p-6 text-center">
-            <h2 className="text-2xl font-bold text-warn mb-2">Game Ended</h2>
-            <p className="text-text-secondary">
-              This game has been completed. All rounds have finished.
-            </p>
+    <div className="min-h-screen bg-base p-4 md:p-6">
+      <div className="max-w-7xl mx-auto space-y-4">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <BackButton href="/host/dashboard" label="Dashboard" />
+          <div className="flex items-center gap-3">
+            <span className="text-text-disabled text-xs font-mono uppercase tracking-widest">
+              {game.status === "active" ? "🟢 Live" : game.status === "setup" ? "⚙️ Setup" : "🔴 Ended"}
+            </span>
           </div>
         </div>
-      )}
 
-      {isGameSetup && (
-        <div className="max-w-7xl mx-auto mb-6">
-          <div className="bg-surface border border-border rounded-2xl p-6 text-center">
-            <h2 className="text-xl font-bold mb-4">Game Ready to Start</h2>
-            <p className="text-text-secondary mb-4">
-              Share the game code with players, then start the game when ready.
-            </p>
+        {/* Game Ended Banner */}
+        {isGameEnded && (
+          <div className="bg-warn/10 border border-warn/40 rounded-2xl p-5 text-center">
+            <h2 className="font-display text-xl font-bold text-warn">🏁 Game Over</h2>
+            <p className="text-text-secondary text-sm mt-1">All rounds complete.</p>
+          </div>
+        )}
+
+        {/* Setup Banner */}
+        {isGameSetup && (
+          <div className="bg-primary/10 border border-primary/30 rounded-2xl p-6 text-center space-y-4">
+            <div>
+              <h2 className="font-display text-xl font-bold mb-1">Ready to Start</h2>
+              <p className="text-text-secondary text-sm">Share the code below, then start when everyone&apos;s ready.</p>
+            </div>
             {gameError && (
-              <div className="mb-4 p-3 bg-warn/10 border border-warn rounded-lg text-warn text-sm">
-                {gameError}
-              </div>
+              <div className="p-3 bg-warn/10 border border-warn/40 rounded-xl text-warn text-sm">{gameError}</div>
             )}
-            <Button 
-              onClick={handleStartGame} 
-              size="lg"
-              disabled={startingGame}
-            >
-              {startingGame ? "Starting..." : "Start Game"}
+            <Button onClick={handleStartGame} size="lg" disabled={startingGame} className="mx-auto">
+              {startingGame ? "Starting..." : "🎙️ Start Game"}
             </Button>
           </div>
-        </div>
-      )}
+        )}
 
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Panel */}
-        <div className="space-y-6">
-          <div className="bg-surface border border-border rounded-2xl p-6">
-            <h2 className="text-lg font-semibold mb-2">Game Code</h2>
-            <div className="text-3xl font-bold font-mono mb-4">{game.gameCode}</div>
-            <p className="text-sm text-text-secondary">
-              Share this code with players to join
-            </p>
-          </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {/* ── Left Panel ── */}
+          <div className="space-y-4">
+            {/* Game Code */}
+            <div className="card p-5">
+              <p className="text-text-secondary text-xs uppercase tracking-widest mb-2">Game Code</p>
+              <div
+                className="font-mono text-4xl font-black tracking-[0.2em] text-text-primary mb-1"
+                style={{ textShadow: "0 0 30px rgba(108,99,255,0.4)" }}
+              >
+                {game.gameCode}
+              </div>
+              <p className="text-text-disabled text-xs">Players join at this code</p>
+            </div>
 
-          <div className="bg-surface border border-border rounded-2xl p-6">
-            <h2 className="text-lg font-semibold mb-4">Players</h2>
-            <div className="text-3xl font-bold">{players.length}</div>
-          </div>
+            {/* Player Count */}
+            <div className="card p-5 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-secondary/15 flex items-center justify-center text-2xl">👥</div>
+              <div>
+                <p className="text-text-secondary text-xs uppercase tracking-widest">Players</p>
+                <p className="font-display text-3xl font-black text-text-primary">{players.length}</p>
+              </div>
+            </div>
 
-          {currentRound && (
-            <div className="bg-surface border border-border rounded-2xl p-6 space-y-4">
-              <h2 className="text-lg font-semibold mb-4">Round Info</h2>
-              <div className="space-y-2">
-                <p className="text-text-secondary">
-                  Round {game.currentRound} of {game.totalRounds}
-                </p>
-                <p className="mb-2">
-                  Pattern: {currentRound.pattern.replace("_", " ")}
-                </p>
+            {/* Round Info */}
+            {currentRound && (
+              <div className="card p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-text-secondary text-xs uppercase tracking-widest">Round</p>
+                  <span className="text-xs font-mono text-primary bg-primary/15 px-2 py-0.5 rounded-full">
+                    {game.currentRound} / {game.totalRounds}
+                  </span>
+                </div>
+                <p className="font-semibold capitalize">{currentRound.pattern.replace(/_/g, " ")}</p>
                 {currentRound.prize && (
-                  <p className="text-gold">Prize: {currentRound.prize}</p>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gold text-sm">🏆</span>
+                    <span className="text-gold text-sm font-semibold">{currentRound.prize}</span>
+                  </div>
+                )}
+                {currentRound.winnerName && (
+                  <div className="p-3 bg-gold/10 border border-gold/30 rounded-xl">
+                    <p className="text-xs text-text-secondary mb-0.5">Winner</p>
+                    <p className="text-gold font-bold">🎉 {currentRound.winnerName}</p>
+                  </div>
+                )}
+                {game.status === "active" && !currentRound.winnerName && (
+                  <Button onClick={() => setShowWinnerModal(true)} className="w-full" variant="gold">
+                    🏆 Mark Winner
+                  </Button>
+                )}
+                {game.status === "active" && (
+                  <Button variant="destructive" onClick={handleEndGame} className="w-full" disabled={endingGame}>
+                    {endingGame ? "Ending..." : "End Game"}
+                  </Button>
                 )}
               </div>
-              
-              {currentRound.winnerName && (
-                <div className="p-3 bg-gold/10 border border-gold rounded-lg">
-                  <p className="text-sm text-text-secondary">Winner:</p>
-                  <p className="text-gold font-semibold">{currentRound.winnerName}</p>
+            )}
+
+            {/* Round Summary */}
+            {game.totalRounds > 1 && (
+              <div className="card p-5">
+                <p className="text-text-secondary text-xs uppercase tracking-widest mb-3">Rounds</p>
+                <div className="space-y-2">
+                  {game.rounds.map((round, index) => (
+                    <div
+                      key={index}
+                      className={`p-3 rounded-xl border text-sm transition-all ${
+                        index + 1 === game.currentRound
+                          ? "bg-primary/10 border-primary/40"
+                          : round.winnerName
+                          ? "bg-gold/10 border-gold/30"
+                          : "bg-elevated border-bg-border"
+                      }`}
+                    >
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p className="font-semibold">Round {round.roundNumber}</p>
+                          <p className="text-text-secondary text-xs capitalize">{round.pattern.replace(/_/g, " ")}</p>
+                        </div>
+                        {round.winnerName
+                          ? <span className="text-gold text-xs">✓ {round.winnerName}</span>
+                          : index + 1 === game.currentRound
+                          ? <span className="text-primary text-xs">Current</span>
+                          : null}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              )}
+              </div>
+            )}
+          </div>
 
-              {game.status === "active" && !currentRound.winnerName && (
-                <Button
-                  onClick={() => {
-                    console.log("Mark Winner clicked");
-                    setShowWinnerModal(true);
-                  }}
-                  className="w-full"
-                >
-                  Mark Winner
-                </Button>
-              )}
-
-              {game.status === "active" && (
-                <Button
-                  variant="destructive"
-                  onClick={handleEndGame}
-                  className="w-full"
-                  disabled={endingGame}
-                >
-                  {endingGame ? "Ending..." : "End Game"}
-                </Button>
+          {/* ── Center Panel ── */}
+          <div className="space-y-4">
+            {/* Current Number */}
+            <div className="card p-6 text-center min-h-[200px] flex flex-col items-center justify-center relative overflow-hidden">
+              {currentNumber ? (
+                <>
+                  {/* Glow behind */}
+                  <div
+                    className="absolute inset-0 opacity-20 blur-3xl"
+                    style={{ background: `radial-gradient(circle, ${getColumnColor(currentNumber[0] as BingoColumn)}, transparent 70%)` }}
+                  />
+                  <p className="text-text-disabled text-xs uppercase tracking-widest mb-3 relative">Now Calling</p>
+                  <div
+                    className="relative font-display font-black leading-none animate-number-pop"
+                    style={{
+                      fontSize: "clamp(5rem, 15vw, 9rem)",
+                      color: getColumnColor(currentNumber[0] as BingoColumn),
+                      textShadow: `0 0 40px ${getColumnColor(currentNumber[0] as BingoColumn)}`,
+                    }}
+                  >
+                    {currentNumber[0]}<span className="text-text-primary">{getActualNumber(currentNumber)}</span>
+                  </div>
+                  <p
+                    className="relative mt-2 text-sm font-mono font-bold tracking-widest uppercase"
+                    style={{ color: getColumnColor(currentNumber[0] as BingoColumn) }}
+                  >
+                    {currentNumber[0] === "B" ? "B Column" : currentNumber[0] === "I" ? "I Column" : currentNumber[0] === "N" ? "N Column" : currentNumber[0] === "G" ? "G Column" : "O Column"}
+                  </p>
+                </>
+              ) : (
+                <p className="text-text-disabled text-sm">No numbers called yet</p>
               )}
             </div>
-          )}
 
-          {/* Round Summary */}
-          {game.totalRounds > 1 && (
-            <div className="bg-surface border border-border rounded-2xl p-6">
-              <h2 className="text-lg font-semibold mb-4">Round Summary</h2>
-              <div className="space-y-2">
-                {game.rounds.map((round, index) => (
+            {/* Recent Calls */}
+            <div className="card p-5">
+              <p className="text-text-secondary text-xs uppercase tracking-widest mb-3">Recent Calls</p>
+              <div className="flex gap-2 flex-wrap">
+                {calledNumbers.length === 0 && (
+                  <p className="text-text-disabled text-sm">—</p>
+                )}
+                {calledNumbers.slice(0, 8).map((num, i) => (
                   <div
-                    key={index}
-                    className={`p-3 rounded-lg border ${
-                      index + 1 === game.currentRound
-                        ? "bg-primary/10 border-primary"
-                        : round.winnerName
-                        ? "bg-gold/10 border-gold"
-                        : "bg-elevated border-border"
-                    }`}
+                    key={num.id}
+                    className="w-12 h-12 rounded-xl flex items-center justify-center font-mono font-bold text-sm transition-all"
+                    style={{
+                      backgroundColor: `${getColumnColor(num.number[0] as BingoColumn)}${i === 0 ? "30" : "15"}`,
+                      color: getColumnColor(num.number[0] as BingoColumn),
+                      border: `1px solid ${getColumnColor(num.number[0] as BingoColumn)}${i === 0 ? "80" : "40"}`,
+                      opacity: i === 0 ? 1 : Math.max(0.4, 1 - i * 0.1),
+                    }}
                   >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-semibold">
-                          Round {round.roundNumber}
-                          {index + 1 === game.currentRound && (
-                            <span className="ml-2 text-xs text-primary">(Current)</span>
-                          )}
-                        </p>
-                        <p className="text-sm text-text-secondary">
-                          {round.pattern.replace("_", " ")}
-                        </p>
-                        {round.winnerName && (
-                          <p className="text-sm text-gold mt-1">
-                            Winner: {round.winnerName}
-                          </p>
-                        )}
-                      </div>
-                      {round.winnerName && (
-                        <span className="text-2xl">✓</span>
-                      )}
-                    </div>
+                    {num.number}
                   </div>
                 ))}
               </div>
+              {calledNumbers.length > 0 && (
+                <p className="text-text-disabled text-xs mt-3">{calledNumbers.length} of 75 called</p>
+              )}
             </div>
-          )}
-        </div>
+          </div>
 
-        {/* Center Panel */}
-        <div className="space-y-6">
-          {currentNumber && (
-            <div className="bg-surface border border-border rounded-2xl p-8 text-center">
-              <div className="text-7xl md:text-9xl font-bold font-mono mb-4">
-                {currentNumber[0]}
-                {getActualNumber(currentNumber)}
-              </div>
-              <p className="text-text-secondary">Current Number</p>
-            </div>
-          )}
-
-          <div className="bg-surface border border-border rounded-2xl p-6">
-            <h3 className="text-lg font-semibold mb-4">Recent Calls</h3>
-            <div className="flex gap-2 flex-wrap">
-              {calledNumbers.slice(0, 5).map((num) => (
+          {/* ── Right Panel — Number Grid ── */}
+          <div className="card p-4">
+            <p className="text-text-secondary text-xs uppercase tracking-widest mb-3">
+              Call Numbers
+              <span className="ml-2 text-primary font-mono">
+                {calledNumbers.length}/75
+              </span>
+            </p>
+            {/* Column headers */}
+            <div className="grid grid-cols-5 gap-1 mb-1">
+              {(["B", "I", "N", "G", "O"] as BingoColumn[]).map((col) => (
                 <div
-                  key={num.id}
-                  className="px-4 py-2 bg-secondary/20 rounded-lg font-mono"
+                  key={col}
+                  className="text-center font-display font-black text-base py-1 rounded-lg"
+                  style={{
+                    color: getColumnColor(col),
+                    backgroundColor: `${getColumnColor(col)}15`,
+                  }}
                 >
-                  {num.number[0]}
-                  {getActualNumber(num.number)}
+                  {col}
                 </div>
               ))}
             </div>
-          </div>
-        </div>
-
-        {/* Right Panel - Number Grid */}
-        <div className="bg-surface border border-border rounded-2xl p-6">
-          <h3 className="text-lg font-semibold mb-4">Call Numbers</h3>
-          <div className="grid grid-cols-5 gap-2">
-            {/* Column Headers */}
-            {["B", "I", "N", "G", "O"].map((col) => (
-              <div
-                key={col}
-                className="text-center font-bold text-sm pb-2"
-                style={{ color: getColumnColor(col as any) }}
-              >
-                {col}
-              </div>
-            ))}
-            {/* Grid organized by column: B(1-15), I(16-30), N(31-45), G(46-60), O(61-75) */}
-            {Array.from({ length: 15 }, (_, rowIndex) => {
-              const columns: BingoColumn[] = ["B", "I", "N", "G", "O"];
-              return columns.map((col) => {
-                let actualNumber: number;
-                
-                switch (col) {
-                  case "B":
-                    actualNumber = rowIndex + 1; // 1-15
-                    break;
-                  case "I":
-                    actualNumber = rowIndex + 16; // 16-30
-                    break;
-                  case "N":
-                    actualNumber = rowIndex + 31; // 31-45
-                    break;
-                  case "G":
-                    actualNumber = rowIndex + 46; // 46-60
-                    break;
-                  case "O":
-                    actualNumber = rowIndex + 61; // 61-75
-                    break;
-                }
-                
-                // Convert actual number to bingo format (e.g., 36 -> "N6")
-                const number = formatNumber(actualNumber);
-                const isCalled = calledSet.has(number);
-                
-                return (
-                  <button
-                    key={number}
-                    onClick={() => !isCalled && handleCallNumber(number)}
-                    disabled={isCalled || isGameEnded || isGameSetup}
-                    className={`aspect-square rounded-lg font-mono text-sm transition-all ${
-                      isCalled
-                        ? "bg-secondary/30 cursor-not-allowed opacity-50"
-                        : "bg-elevated hover:bg-elevated/80 hover:scale-105 border border-border"
-                    }`}
-                    style={
-                      !isCalled
-                        ? {
-                            borderColor: getColumnColor(col),
-                          }
-                        : {}
-                    }
-                  >
-                    {actualNumber}
-                  </button>
-                );
-              });
-            }).flat()}
+            {/* Number grid */}
+            <div className="grid grid-cols-5 gap-1">
+              {Array.from({ length: 15 }, (_, rowIndex) => {
+                const columns: BingoColumn[] = ["B", "I", "N", "G", "O"];
+                return columns.map((col) => {
+                  let actualNumber: number;
+                  switch (col) {
+                    case "B": actualNumber = rowIndex + 1; break;
+                    case "I": actualNumber = rowIndex + 16; break;
+                    case "N": actualNumber = rowIndex + 31; break;
+                    case "G": actualNumber = rowIndex + 46; break;
+                    case "O": actualNumber = rowIndex + 61; break;
+                  }
+                  const number = formatNumber(actualNumber);
+                  const isCalled = calledSet.has(number);
+                  const colColor = getColumnColor(col);
+                  return (
+                    <button
+                      key={number}
+                      onClick={() => !isCalled && handleCallNumber(number)}
+                      disabled={isCalled || isGameEnded || isGameSetup}
+                      className="aspect-square rounded-lg font-mono text-xs font-bold transition-all duration-150 select-none"
+                      style={
+                        isCalled
+                          ? {
+                              backgroundColor: `${colColor}25`,
+                              color: colColor,
+                              border: `1px solid ${colColor}50`,
+                              cursor: "not-allowed",
+                            }
+                          : {
+                              backgroundColor: "var(--bg-elevated)",
+                              color: "var(--text-secondary)",
+                              border: `1px solid var(--bg-border)`,
+                            }
+                      }
+                      onMouseEnter={(e) => {
+                        if (!isCalled && !isGameEnded && !isGameSetup) {
+                          e.currentTarget.style.backgroundColor = `${colColor}20`;
+                          e.currentTarget.style.color = colColor;
+                          e.currentTarget.style.borderColor = `${colColor}80`;
+                          e.currentTarget.style.transform = "scale(1.1)";
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isCalled) {
+                          e.currentTarget.style.backgroundColor = "var(--bg-elevated)";
+                          e.currentTarget.style.color = "var(--text-secondary)";
+                          e.currentTarget.style.borderColor = "var(--bg-border)";
+                          e.currentTarget.style.transform = "scale(1)";
+                        }
+                      }}
+                    >
+                      {actualNumber}
+                    </button>
+                  );
+                });
+              }).flat()}
+            </div>
           </div>
         </div>
       </div>
