@@ -8,6 +8,7 @@ import { usePlayers } from "@/lib/hooks/usePlayers";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { getAllNumbers, getColumnColor, getActualNumber, formatNumber } from "@/lib/utils/bingo";
+import { BingoBall } from "@/components/bingo/BingoBall";
 import { addCalledNumber, updateGame } from "@/lib/firebase/firestore";
 import { Button } from "@/components/ui/button";
 import { WinnerModal } from "@/components/host/WinnerModal";
@@ -305,7 +306,7 @@ export default function HostGamePage() {
               <div className="w-12 h-12 rounded-xl bg-secondary/15 flex items-center justify-center text-2xl">👥</div>
               <div>
                 <p className="text-text-secondary text-xs uppercase tracking-widest">Players</p>
-                <p className="font-display text-3xl font-black text-text-primary">{players.length}</p>
+                <p className="font-mono text-3xl font-black text-text-primary">{players.length}</p>
               </div>
             </div>
 
@@ -380,35 +381,28 @@ export default function HostGamePage() {
 
           {/* ── Center Panel — Current number (order-3 on mobile, order-2 on desktop) ── */}
           <div className="space-y-4 order-3 lg:order-2">
-            {/* Current Number */}
-            <div className="card p-6 text-center min-h-[200px] flex flex-col items-center justify-center relative overflow-hidden">
+            {/* Current Number — Bingo Ball */}
+            <div className="card p-6 flex flex-col items-center justify-center gap-4 relative overflow-hidden"
+              style={{ minHeight: 220 }}>
               {currentNumber ? (
                 <>
-                  {/* Glow behind */}
+                  {/* Ambient glow */}
                   <div
-                    className="absolute inset-0 opacity-20 blur-3xl"
-                    style={{ background: `radial-gradient(circle, ${getColumnColor(currentNumber[0] as BingoColumn)}, transparent 70%)` }}
+                    className="absolute inset-0 opacity-15 pointer-events-none"
+                    style={{ background: `radial-gradient(circle at 50% 50%, ${getColumnColor(currentNumber[0] as BingoColumn)}, transparent 65%)` }}
                   />
-                  <p className="text-text-disabled text-xs uppercase tracking-widest mb-3 relative">Now Calling</p>
-                  <div
-                    className="relative font-display font-black leading-none animate-number-pop"
-                    style={{
-                      fontSize: "clamp(5rem, 15vw, 9rem)",
-                      color: getColumnColor(currentNumber[0] as BingoColumn),
-                      textShadow: `0 0 40px ${getColumnColor(currentNumber[0] as BingoColumn)}`,
-                    }}
-                  >
-                    {currentNumber[0]}<span className="text-text-primary">{getActualNumber(currentNumber)}</span>
+                  <p className="text-text-disabled text-xs font-mono uppercase tracking-widest relative z-10">Now Calling</p>
+                  <div className="relative z-10">
+                    <BingoBall number={currentNumber} size={160} />
                   </div>
-                  <p
-                    className="relative mt-2 text-sm font-mono font-bold tracking-widest uppercase"
-                    style={{ color: getColumnColor(currentNumber[0] as BingoColumn) }}
-                  >
-                    {currentNumber[0] === "B" ? "B Column" : currentNumber[0] === "I" ? "I Column" : currentNumber[0] === "N" ? "N Column" : currentNumber[0] === "G" ? "G Column" : "O Column"}
-                  </p>
                 </>
               ) : (
-                <p className="text-text-disabled text-sm">No numbers called yet</p>
+                <div className="text-center space-y-2">
+                  <div className="w-32 h-32 rounded-full bg-elevated border-2 border-dashed border-bg-border flex items-center justify-center mx-auto">
+                    <span className="text-text-disabled text-3xl">?</span>
+                  </div>
+                  <p className="text-text-disabled text-xs font-mono">No numbers called yet</p>
+                </div>
               )}
             </div>
 
@@ -453,7 +447,7 @@ export default function HostGamePage() {
               {(["B", "I", "N", "G", "O"] as BingoColumn[]).map((col) => (
                 <div
                   key={col}
-                  className="text-center font-display font-black text-base py-1 rounded-lg"
+                  className="text-center font-mono font-black text-base py-1 rounded-lg"
                   style={{
                     color: getColumnColor(col),
                     backgroundColor: `${getColumnColor(col)}15`,

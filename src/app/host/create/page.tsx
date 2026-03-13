@@ -102,7 +102,7 @@ export default function CreateGamePage() {
           {rounds.map((round, index) => (
             <div key={index} className="card p-5 space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="font-display font-bold text-base">Round {round.roundNumber}</h3>
+                <h3 className="font-sans font-semibold text-base">Round {round.roundNumber}</h3>
                 {totalRounds > 1 && (
                   <span className="text-xs font-mono text-primary bg-primary/10 px-2 py-0.5 rounded-full">
                     {index + 1}/{totalRounds}

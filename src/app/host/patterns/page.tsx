@@ -123,7 +123,7 @@ export default function PatternsPage() {
           <div className="card p-10 text-center space-y-4">
             <div className="text-4xl">🎨</div>
             <div>
-              <p className="font-display font-bold">No custom patterns yet</p>
+              <p className="font-sans font-semibold text-lg">No custom patterns yet</p>
               <p className="text-text-secondary text-sm mt-1">Create a pattern to use in your games.</p>
             </div>
             <Button onClick={handleStartCreate}>Create First Pattern</Button>

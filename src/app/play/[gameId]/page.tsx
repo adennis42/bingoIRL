@@ -6,8 +6,7 @@ import { useCalledNumbers } from "@/lib/hooks/useCalledNumbers";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { getColumnColor } from "@/lib/utils/bingo";
 import type { BingoColumn } from "@/types";
-import { motion, AnimatePresence } from "framer-motion";
-import { numberBallVariants } from "@/lib/animations";
+import { BingoBall } from "@/components/bingo/BingoBall";
 
 const COLUMN_RANGES: Record<BingoColumn, [number, number]> = {
   B: [1, 15], I: [16, 30], N: [31, 45], G: [46, 60], O: [61, 75],
@@ -46,6 +45,7 @@ export default function PlayerGamePage() {
   const calledSet = new Set(calledNumbers.map((n) => n.number));
   const currentCol = currentNumber ? (currentNumber[0] as BingoColumn) : null;
   const currentColColor = currentCol ? getColumnColor(currentCol) : "var(--accent-primary)";
+  void currentCol; // used via BingoBall component
 
   return (
     <div className="min-h-screen bg-base flex flex-col">
@@ -78,24 +78,10 @@ export default function PlayerGamePage() {
         {currentNumber ? (
           <div className="relative text-center space-y-2">
             <p className="text-text-disabled text-xs font-mono uppercase tracking-[0.2em]">Now Calling</p>
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentNumber}
-                variants={numberBallVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                className="font-display font-black leading-none"
-                style={{
-                  fontSize: "clamp(6rem, 28vw, 10rem)",
-                  color: currentColColor,
-                  textShadow: `0 0 60px ${currentColColor}80, 0 0 20px ${currentColColor}40`,
-                }}
-              >
-                {currentNumber[0]}
-                <span className="text-text-primary">{currentNumber.slice(1)}</span>
-              </motion.div>
-            </AnimatePresence>
+            {/* Responsive ball size — smaller on compact phones */}
+            <div className="flex justify-center">
+              <BingoBall number={currentNumber} size={180} />
+            </div>
             {/* Recent calls row */}
             <div className="flex items-center justify-center gap-1.5 pt-3 flex-wrap">
               {calledNumbers.slice(1, 7).map((n, i) => {
@@ -134,7 +120,7 @@ export default function PlayerGamePage() {
             {COLUMNS.map((col) => (
               <div
                 key={col}
-                className="py-2 text-center font-display font-black text-base"
+                className="py-2 text-center font-mono font-black text-base"
                 style={{ color: getColumnColor(col), backgroundColor: `${getColumnColor(col)}12` }}
               >
                 {col}

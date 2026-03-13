@@ -132,7 +132,7 @@ export default function HostDashboardPage() {
           <div className="card p-10 text-center space-y-4">
             <div className="text-5xl">🎴</div>
             <div>
-              <p className="font-display font-bold text-lg">No games yet</p>
+              <p className="font-sans font-semibold text-lg">No games yet</p>
               <p className="text-text-secondary text-sm mt-1">Create your first game to get started.</p>
             </div>
             <Link href="/host/create">
