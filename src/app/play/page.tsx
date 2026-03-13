@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getGameByCode } from "@/lib/firebase/firestore";
 import { signInAnonymouslyUser } from "@/lib/firebase/auth";
@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 
-export default function PlayPage() {
+// useSearchParams requires Suspense boundary in Next.js 14 App Router
+function PlayPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [code, setCode] = useState("");
@@ -42,14 +43,15 @@ export default function PlayPage() {
 
       // Add player to game (use user.uid as document ID for security rules)
       await addPlayer(game.id, {
-        displayName: null,
+        displayName: undefined,
         joinedAt: new Date(),
         isActive: true,
       }, user.uid);
 
       router.push(`/play/${game.id}`);
-    } catch (err: any) {
-      setError(err.message || "Failed to join game");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to join game";
+      setError(message);
       setLoading(false);
     }
   };
@@ -92,5 +94,17 @@ export default function PlayPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function PlayPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    }>
+      <PlayPageInner />
+    </Suspense>
   );
 }

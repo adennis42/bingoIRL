@@ -26,7 +26,7 @@ export default function PlayerGamePage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-2">Game Not Found</h1>
           <p className="text-text-secondary">
-            The game you're looking for doesn't exist.
+            The game you&apos;re looking for doesn&apos;t exist.
           </p>
         </div>
       </div>

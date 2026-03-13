@@ -124,7 +124,7 @@ export default function PatternsPage() {
           {patterns.length === 0 ? (
             <div className="bg-surface border border-border rounded-2xl p-8 text-center">
               <p className="text-text-secondary mb-4">
-                You haven't created any custom patterns yet.
+                You haven&apos;t created any custom patterns yet.
               </p>
               <Button onClick={handleStartCreate}>Create Your First Pattern</Button>
             </div>

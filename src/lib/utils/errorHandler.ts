@@ -44,7 +44,7 @@ export function getFirebaseErrorMessage(error: unknown): string {
   }
   
   if (error instanceof FirebaseError) {
-    return error.userMessage || error.message;
+    return error.message;
   }
 
   if (error instanceof ValidationError) {
