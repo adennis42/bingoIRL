@@ -132,6 +132,11 @@ export async function addCalledNumber(
   return docRef.id;
 }
 
+export async function removeCalledNumber(gameId: string, numberId: string): Promise<void> {
+  const ref = doc(db, "games", gameId, "calledNumbers", numberId);
+  await deleteDoc(ref);
+}
+
 export function subscribeToCalledNumbers(
   gameId: string,
   callback: (numbers: CalledNumber[]) => void

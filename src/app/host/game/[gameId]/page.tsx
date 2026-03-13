@@ -9,7 +9,7 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { getAllNumbers, getColumnColor, getActualNumber, formatNumber } from "@/lib/utils/bingo";
 import { BingoBall } from "@/components/bingo/BingoBall";
-import { addCalledNumber, updateGame } from "@/lib/firebase/firestore";
+import { addCalledNumber, updateGame, removeCalledNumber } from "@/lib/firebase/firestore";
 import { Button } from "@/components/ui/button";
 import { WinnerModal } from "@/components/host/WinnerModal";
 import { RoundCompleteModal } from "@/components/host/RoundCompleteModal";
@@ -42,6 +42,19 @@ export default function HostGamePage() {
   const [startingGame, setStartingGame] = useState(false);
   const [gameError, setGameError] = useState("");
   const [codeCopied, setCodeCopied] = useState(false);
+  const [undoing, setUndoing] = useState(false);
+
+  const handleUndoLastCall = async () => {
+    if (!calledNumbers.length || undoing) return;
+    setUndoing(true);
+    try {
+      await removeCalledNumber(gameId, calledNumbers[0].id);
+    } catch (err) {
+      console.error("Failed to undo call:", err);
+    } finally {
+      setUndoing(false);
+    }
+  };
 
   const copyCode = () => {
     navigator.clipboard.writeText(game?.gameCode ?? "").then(() => {
@@ -395,6 +408,13 @@ export default function HostGamePage() {
                   <div className="relative z-10">
                     <BingoBall number={currentNumber} size={160} />
                   </div>
+                  <button
+                    onClick={handleUndoLastCall}
+                    disabled={undoing}
+                    className="relative z-10 mt-1 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-warn/70 hover:text-warn hover:bg-warn/10 border border-transparent hover:border-warn/25 transition-all disabled:opacity-40"
+                  >
+                    ↩ {undoing ? "Undoing…" : "Undo"}
+                  </button>
                 </>
               ) : (
                 <div className="text-center space-y-2">
