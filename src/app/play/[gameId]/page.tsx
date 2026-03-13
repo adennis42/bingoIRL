@@ -4,15 +4,11 @@ import { useParams } from "next/navigation";
 import { useGame } from "@/lib/hooks/useGame";
 import { useCalledNumbers } from "@/lib/hooks/useCalledNumbers";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
-import { getColumnColor, getActualNumber } from "@/lib/utils/bingo";
-import type { BingoColumn } from "@/types";
 import { BingoBall } from "@/components/bingo/BingoBall";
-
-const COLUMN_RANGES: Record<BingoColumn, [number, number]> = {
-  B: [1, 15], I: [16, 30], N: [31, 45], G: [46, 60], O: [61, 75],
-};
-
-const COLUMNS: BingoColumn[] = ["B", "I", "N", "G", "O"];
+import { PatternVisualizer } from "@/components/bingo/PatternVisualizer";
+import { getColumnColor, getActualNumber } from "@/lib/utils/bingo";
+import { PATTERN_DEFINITIONS } from "@/lib/utils/patterns";
+import type { BingoColumn } from "@/types";
 
 export default function PlayerGamePage() {
   const params = useParams();
@@ -41,171 +37,161 @@ export default function PlayerGamePage() {
   }
 
   const currentNumber = calledNumbers[0]?.number || null;
+  const previousNumbers = calledNumbers.slice(1);
   const currentRound = game.rounds[game.currentRound - 1];
-  const calledSet = new Set(calledNumbers.map((n) => n.number));
-  const currentCol = currentNumber ? (currentNumber[0] as BingoColumn) : null;
-  const currentColColor = currentCol ? getColumnColor(currentCol) : "var(--accent-primary)";
-  void currentCol; // used via BingoBall component
+
+  const patternName = (() => {
+    if (!currentRound) return "";
+    const def = PATTERN_DEFINITIONS[currentRound.pattern];
+    return def ? def.name : currentRound.pattern.replace(/_/g, " ");
+  })();
 
   return (
     <div className="min-h-screen bg-base flex flex-col">
-      {/* ── Top bar ── */}
-      <div className="flex items-center justify-between px-4 pt-safe pt-4 pb-2">
+      {/* ── Status bar ── */}
+      <div className="flex items-center justify-between px-4 pt-4 pb-2 shrink-0">
         <div className="flex items-center gap-2">
           <span
-            className="w-2 h-2 rounded-full animate-pulse"
-            style={{ backgroundColor: game.status === "active" ? "var(--accent-secondary)" : "var(--text-disabled)" }}
+            className="w-2 h-2 rounded-full"
+            style={{
+              backgroundColor: game.status === "active"
+                ? "var(--accent-secondary)"
+                : "var(--text-disabled)",
+              animation: game.status === "active" ? "glowPulse 2s ease-in-out infinite" : "none",
+            }}
           />
           <span className="text-text-disabled text-xs font-mono uppercase tracking-widest">
             {game.status === "active" ? "Live" : game.status === "ended" ? "Ended" : "Waiting"}
           </span>
         </div>
-        <span className="text-text-disabled text-xs font-mono">{calledNumbers.length}/75 called</span>
+        <span className="text-text-disabled text-xs font-mono">
+          {calledNumbers.length} called
+        </span>
       </div>
 
-      {/* ── Current Number ── big hero section ── */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-8 relative overflow-hidden min-h-[40vh]">
-        {/* Radial glow */}
-        {currentNumber && (
-          <div
-            className="absolute inset-0 opacity-20 pointer-events-none"
-            style={{
-              background: `radial-gradient(ellipse at center, ${currentColColor} 0%, transparent 65%)`,
-            }}
-          />
-        )}
+      {/* ── Scrollable content ── */}
+      <div className="flex-1 overflow-y-auto px-4 pb-6 space-y-5">
 
-        {currentNumber ? (
-          <div className="relative text-center space-y-2">
-            <p className="text-text-disabled text-xs font-mono uppercase tracking-[0.2em]">Now Calling</p>
-            {/* Responsive ball size — smaller on compact phones */}
-            <div className="flex justify-center">
+        {/* ── Current Ball ── */}
+        <div className="flex flex-col items-center py-4">
+          {currentNumber ? (
+            <>
+              <p className="text-text-disabled text-xs font-mono uppercase tracking-[0.2em] mb-3">
+                Now Calling
+              </p>
               <BingoBall number={currentNumber} size={180} />
+            </>
+          ) : (
+            <div className="flex flex-col items-center gap-3 py-8">
+              <div className="w-32 h-32 rounded-full bg-elevated border-2 border-dashed border-bg-border flex items-center justify-center">
+                <span className="text-text-disabled text-4xl">?</span>
+              </div>
+              <p className="text-text-disabled text-sm font-mono">Waiting for first call…</p>
             </div>
-            {/* Recent calls row */}
-            <div className="flex items-center justify-center gap-1.5 pt-3 flex-wrap">
-              {calledNumbers.slice(1, 7).map((n, i) => {
+          )}
+        </div>
+
+        {/* ── Previously called numbers ── */}
+        {previousNumbers.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-text-disabled text-xs font-mono uppercase tracking-widest">
+              Previously Called ({previousNumbers.length})
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {previousNumbers.map((n, i) => {
                 const col = n.number[0] as BingoColumn;
                 const color = getColumnColor(col);
+                const actual = getActualNumber(n.number);
                 return (
-                  <span
+                  <div
                     key={n.id}
-                    className="font-mono text-xs font-bold px-2 py-1 rounded-lg"
+                    className="flex items-center justify-center rounded-xl font-mono font-bold text-sm transition-all"
                     style={{
-                      color,
+                      width: 48,
+                      height: 48,
                       backgroundColor: `${color}18`,
-                      border: `1px solid ${color}35`,
-                      opacity: Math.max(0.35, 1 - i * 0.13),
+                      color,
+                      border: `1px solid ${color}40`,
+                      opacity: Math.max(0.45, 1 - i * 0.04),
                     }}
                   >
-                    {n.number[0]}{getActualNumber(n.number)}
-                  </span>
+                    {col}{actual}
+                  </div>
                 );
               })}
             </div>
           </div>
-        ) : (
-          <div className="text-center space-y-3">
-            <div className="text-5xl">⏳</div>
-            <p className="font-display text-xl font-bold">Waiting for first call…</p>
+        )}
+
+        {/* ── Round info card ── */}
+        {currentRound && (
+          <div className="card p-5 space-y-4">
+            {/* Round header */}
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-text-disabled text-xs font-mono uppercase tracking-widest">Round</p>
+                <p className="font-display text-2xl font-black">
+                  {game.currentRound}
+                  <span className="text-text-disabled text-base font-sans font-normal"> / {game.totalRounds}</span>
+                </p>
+              </div>
+              {currentRound.prize && (
+                <div className="text-right">
+                  <p className="text-text-disabled text-xs font-mono uppercase tracking-widest">Prize</p>
+                  <p className="text-gold font-bold text-base">🏆 {currentRound.prize}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Divider */}
+            <div className="h-px bg-bg-border" />
+
+            {/* Pattern */}
+            <div className="space-y-3">
+              <div>
+                <p className="text-text-disabled text-xs font-mono uppercase tracking-widest mb-0.5">Win Pattern</p>
+                <p className="text-text-primary font-semibold text-sm">{patternName}</p>
+              </div>
+              <div className="flex justify-center">
+                <PatternVisualizer pattern={currentRound.pattern} size="md" />
+              </div>
+              {currentRound.pattern === "traditional_line" && (
+                <p className="text-text-secondary text-xs text-center">
+                  Any horizontal, vertical, or diagonal line
+                </p>
+              )}
+              {currentRound.pattern === "blackout" && (
+                <p className="text-text-secondary text-xs text-center">
+                  Fill every square on your card
+                </p>
+              )}
+            </div>
+
+            {/* Winner banner if round is complete */}
+            {currentRound.winnerName && (
+              <>
+                <div className="h-px bg-bg-border" />
+                <div className="flex items-center gap-3 p-3 bg-gold/10 border border-gold/30 rounded-xl">
+                  <span className="text-2xl">🎉</span>
+                  <div>
+                    <p className="text-xs text-text-secondary">Winner</p>
+                    <p className="text-gold font-bold">{currentRound.winnerName}</p>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Game ended state */}
+        {game.status === "ended" && (
+          <div className="card p-6 text-center space-y-2">
+            <div className="text-4xl">🏁</div>
+            <p className="font-display text-xl font-bold">Game Over</p>
+            <p className="text-text-secondary text-sm">Thanks for playing!</p>
           </div>
         )}
       </div>
-
-      {/* ── Called Numbers Board ── */}
-      <div className="px-3 pb-2">
-        <div className="card overflow-hidden">
-          {/* Column headers */}
-          <div className="grid grid-cols-5 border-b border-border">
-            {COLUMNS.map((col) => (
-              <div
-                key={col}
-                className="py-2 text-center font-mono font-black text-base"
-                style={{ color: getColumnColor(col), backgroundColor: `${getColumnColor(col)}12` }}
-              >
-                {col}
-              </div>
-            ))}
-          </div>
-
-          {/* Number grid — 15 rows × 5 cols */}
-          <div className="grid grid-cols-5">
-            {Array.from({ length: 15 }, (_, rowIndex) =>
-              COLUMNS.map((col) => {
-                const num = COLUMN_RANGES[col][0] + rowIndex;
-                const formatted = `${col}${num}`;
-                const isCalled = calledSet.has(formatted);
-                const color = getColumnColor(col);
-                return (
-                  <div
-                    key={formatted}
-                    className="aspect-square flex items-center justify-center font-mono text-sm font-bold border-b border-r border-border/30 transition-all duration-300"
-                    style={
-                      isCalled
-                        ? {
-                            backgroundColor: `${color}22`,
-                            color,
-                          }
-                        : {
-                            backgroundColor: "transparent",
-                            color: "var(--text-disabled)",
-                          }
-                    }
-                  >
-                    {isCalled ? (
-                      <span className="relative">
-                        {num}
-                        <span
-                          className="absolute inset-0 rounded-full opacity-40 blur-sm"
-                          style={{ backgroundColor: color }}
-                        />
-                      </span>
-                    ) : (
-                      <span className="opacity-30">{num}</span>
-                    )}
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* ── Sticky Bottom Bar ── round info ── */}
-      {currentRound && (
-        <div
-          className="sticky bottom-0 px-3 pb-safe pb-4 pt-2"
-          style={{ backgroundColor: "var(--bg-base)" }}
-        >
-          <div
-            className="rounded-2xl px-4 py-3 flex items-center justify-between border"
-            style={{
-              backgroundColor: "var(--bg-surface)",
-              borderColor: "var(--bg-border)",
-            }}
-          >
-            <div className="space-y-0.5">
-              <p className="text-text-disabled text-xs uppercase tracking-widest font-mono">
-                Round {game.currentRound}/{game.totalRounds}
-              </p>
-              <p className="text-text-primary text-sm font-semibold capitalize">
-                {currentRound.pattern.replace(/_/g, " ")}
-              </p>
-            </div>
-            {currentRound.prize ? (
-              <div className="text-right">
-                <p className="text-text-disabled text-xs">Prize</p>
-                <p className="text-gold font-bold text-sm">🏆 {currentRound.prize}</p>
-              </div>
-            ) : (
-              <div className="text-right">
-                <p className="text-text-disabled text-xs">{calledNumbers.length}</p>
-                <p className="text-text-secondary text-xs">numbers called</p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
