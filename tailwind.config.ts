@@ -18,7 +18,8 @@ const config: Config = {
         base: "var(--bg-base)",
         surface: "var(--bg-surface)",
         elevated: "var(--bg-elevated)",
-        "bg-border": "var(--bg-border)",
+        border: "var(--bg-border)",      // keep for backward compat (border-border)
+        "bg-border": "var(--bg-border)", // semantic alias
         primary: "var(--accent-primary)",
         secondary: "var(--accent-secondary)",
         warn: "var(--accent-warn)",

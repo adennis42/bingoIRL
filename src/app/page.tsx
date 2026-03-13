@@ -23,7 +23,7 @@ export default function HomePage() {
           {BINGO_LETTERS.map(({ letter, color, shadow }) => (
             <div
               key={letter}
-              className="w-14 h-14 md:w-18 md:h-18 rounded-2xl flex items-center justify-center font-display font-black text-2xl md:text-3xl border border-white/10"
+              className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center font-display font-black text-xl sm:text-2xl border border-white/10"
               style={{
                 backgroundColor: `${color}18`,
                 color,

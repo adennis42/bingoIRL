@@ -268,9 +268,11 @@ export default function HostGamePage() {
           </div>
         )}
 
+        {/* Mobile: number grid first → current number → info panel
+            Desktop: info | current number | number grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* ── Left Panel ── */}
-          <div className="space-y-4">
+          {/* ── Left Panel — Info (order-2 on mobile, order-1 on desktop) ── */}
+          <div className="space-y-4 order-2 lg:order-1">
             {/* Game Code */}
             <div className="card p-5">
               <p className="text-text-secondary text-xs uppercase tracking-widest mb-2">Game Code</p>
@@ -361,8 +363,8 @@ export default function HostGamePage() {
             )}
           </div>
 
-          {/* ── Center Panel ── */}
-          <div className="space-y-4">
+          {/* ── Center Panel — Current number (order-3 on mobile, order-2 on desktop) ── */}
+          <div className="space-y-4 order-3 lg:order-2">
             {/* Current Number */}
             <div className="card p-6 text-center min-h-[200px] flex flex-col items-center justify-center relative overflow-hidden">
               {currentNumber ? (
@@ -423,8 +425,8 @@ export default function HostGamePage() {
             </div>
           </div>
 
-          {/* ── Right Panel — Number Grid ── */}
-          <div className="card p-4">
+          {/* ── Right Panel — Number Grid (order-1 on mobile = top, order-3 on desktop) ── */}
+          <div className="card p-4 order-1 lg:order-3">
             <p className="text-text-secondary text-xs uppercase tracking-widest mb-3">
               Call Numbers
               <span className="ml-2 text-primary font-mono">

@@ -114,7 +114,7 @@ function PlayPageInner() {
                 <LoadingSpinner /> Joining...
               </span>
             ) : (
-              "Let&apos;s Play →"
+              "Let's Play →"
             )}
           </button>
         </form>
