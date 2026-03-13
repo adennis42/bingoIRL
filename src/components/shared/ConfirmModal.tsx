@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { BottomSheet } from "@/components/shared/BottomSheet";
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -15,54 +16,21 @@ interface ConfirmModalProps {
 }
 
 export function ConfirmModal({
-  isOpen,
-  onClose,
-  onConfirm,
-  title,
-  message,
-  confirmText = "Confirm",
-  cancelText = "Cancel",
-  variant = "default",
-  loading = false,
+  isOpen, onClose, onConfirm, title, message,
+  confirmText = "Confirm", cancelText = "Cancel",
+  variant = "default", loading = false,
 }: ConfirmModalProps) {
-  if (!isOpen) return null;
-
-  const handleConfirm = () => {
-    onConfirm();
-  };
-
   return (
-    <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4"
-      onClick={onClose}
-      style={{ zIndex: 1000 }}
-    >
-      <div
-        className="bg-elevated border border-border rounded-2xl p-6 max-w-md w-full shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 className="text-2xl font-bold mb-4">{title}</h2>
-        <p className="text-text-secondary mb-6">{message}</p>
-
-        <div className="flex gap-3">
-          <Button
-            variant="secondary"
-            onClick={onClose}
-            disabled={loading}
-            className="flex-1"
-          >
-            {cancelText}
-          </Button>
-          <Button
-            variant={variant}
-            onClick={handleConfirm}
-            disabled={loading}
-            className="flex-1"
-          >
-            {loading ? "Processing..." : confirmText}
-          </Button>
-        </div>
+    <BottomSheet isOpen={isOpen} onClose={onClose} title={title}>
+      <p className="text-text-secondary text-sm leading-relaxed">{message}</p>
+      <div className="flex gap-3 pt-2">
+        <Button variant="secondary" onClick={onClose} disabled={loading} className="flex-1">
+          {cancelText}
+        </Button>
+        <Button variant={variant} onClick={onConfirm} disabled={loading} className="flex-1">
+          {loading ? "Processing…" : confirmText}
+        </Button>
       </div>
-    </div>
+    </BottomSheet>
   );
 }

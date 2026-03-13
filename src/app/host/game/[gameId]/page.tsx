@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import { WinnerModal } from "@/components/host/WinnerModal";
 import { RoundCompleteModal } from "@/components/host/RoundCompleteModal";
 import { ConfirmModal } from "@/components/shared/ConfirmModal";
-import { Breadcrumbs } from "@/components/shared/Breadcrumbs";
 import { BackButton } from "@/components/shared/BackButton";
 import Link from "next/link";
 import type { BingoColumn } from "@/types";
@@ -41,6 +40,14 @@ export default function HostGamePage() {
   const [endingGame, setEndingGame] = useState(false);
   const [startingGame, setStartingGame] = useState(false);
   const [gameError, setGameError] = useState("");
+  const [codeCopied, setCodeCopied] = useState(false);
+
+  const copyCode = () => {
+    navigator.clipboard.writeText(game?.gameCode ?? "").then(() => {
+      setCodeCopied(true);
+      setTimeout(() => setCodeCopied(false), 2000);
+    });
+  };
 
   // Clear error when game status changes successfully
   const gameStatus = game?.status;
@@ -276,13 +283,21 @@ export default function HostGamePage() {
             {/* Game Code */}
             <div className="card p-5">
               <p className="text-text-secondary text-xs uppercase tracking-widest mb-2">Game Code</p>
-              <div
-                className="font-mono text-4xl font-black tracking-[0.2em] text-text-primary mb-1"
-                style={{ textShadow: "0 0 30px rgba(108,99,255,0.4)" }}
-              >
-                {game.gameCode}
+              <div className="flex items-center justify-between gap-3">
+                <div
+                  className="font-mono text-4xl font-black tracking-[0.2em] text-text-primary"
+                  style={{ textShadow: "0 0 30px rgba(108,99,255,0.4)" }}
+                >
+                  {game.gameCode}
+                </div>
+                <button
+                  onClick={copyCode}
+                  className="shrink-0 px-3 py-2 rounded-xl bg-elevated border border-bg-border text-xs font-semibold text-text-secondary hover:text-text-primary hover:border-primary/40 transition-all"
+                >
+                  {codeCopied ? "✓ Copied" : "Copy"}
+                </button>
               </div>
-              <p className="text-text-disabled text-xs">Players join at this code</p>
+              <p className="text-text-disabled text-xs mt-1">Players enter this code to join</p>
             </div>
 
             {/* Player Count */}

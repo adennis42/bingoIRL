@@ -12,7 +12,6 @@ import {
 import { PatternEditModal } from "@/components/host/PatternEditModal";
 import { PatternVisualizer } from "@/components/bingo/PatternVisualizer";
 import { ConfirmModal } from "@/components/shared/ConfirmModal";
-import { Breadcrumbs } from "@/components/shared/Breadcrumbs";
 import { BackButton } from "@/components/shared/BackButton";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
@@ -104,72 +103,53 @@ export default function PatternsPage() {
   }
 
   return (
-    <div className="min-h-screen p-8">
-      <div className="max-w-4xl mx-auto space-y-8">
-        <Breadcrumbs items={[{ label: "Custom Patterns" }]} />
-        <BackButton href="/host/dashboard" />
-        <div className="flex justify-between items-center">
-          <h1 className="text-4xl font-bold">Custom Patterns</h1>
-          <Button onClick={handleStartCreate}>Create New Pattern</Button>
+    <div className="min-h-screen bg-base">
+      <div className="max-w-xl mx-auto px-4 py-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <BackButton href="/host/dashboard" />
+          <Button size="sm" onClick={handleStartCreate}>＋ New Pattern</Button>
+        </div>
+
+        <div>
+          <h1 className="font-display text-2xl font-black">Custom Patterns</h1>
+          <p className="text-text-secondary text-sm mt-1">Design your own bingo winning patterns.</p>
         </div>
 
         {error && (
-          <div className="p-4 bg-warn/10 border border-warn rounded-2xl text-warn text-sm">
-            {error}
-          </div>
+          <div className="p-3 bg-warn/10 border border-warn/40 rounded-xl text-warn text-sm">{error}</div>
         )}
 
-        <div className="space-y-4">
-          <h2 className="text-2xl font-bold">Your Patterns</h2>
-          {patterns.length === 0 ? (
-            <div className="bg-surface border border-border rounded-2xl p-8 text-center">
-              <p className="text-text-secondary mb-4">
-                You haven&apos;t created any custom patterns yet.
-              </p>
-              <Button onClick={handleStartCreate}>Create Your First Pattern</Button>
+        {patterns.length === 0 ? (
+          <div className="card p-10 text-center space-y-4">
+            <div className="text-4xl">🎨</div>
+            <div>
+              <p className="font-display font-bold">No custom patterns yet</p>
+              <p className="text-text-secondary text-sm mt-1">Create a pattern to use in your games.</p>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {patterns.map((pattern) => (
-                <div
-                  key={pattern.id}
-                  className="bg-surface border border-border rounded-2xl p-6 space-y-4"
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="text-lg font-semibold">{pattern.name}</h3>
-                      {pattern.description && (
-                        <p className="text-sm text-text-secondary mt-1">
-                          {pattern.description}
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => handleStartEdit(pattern)}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleDeleteClick(pattern.id)}
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  </div>
+            <Button onClick={handleStartCreate}>Create First Pattern</Button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {patterns.map((pattern) => (
+              <div key={pattern.id} className="card p-4">
+                <div className="flex items-center gap-4">
                   <PatternVisualizer pattern={pattern} size="sm" />
-                  <p className="text-xs text-text-secondary">
-                    {pattern.cells.length} cells selected
-                  </p>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm">{pattern.name}</p>
+                    {pattern.description && (
+                      <p className="text-text-secondary text-xs mt-0.5 truncate">{pattern.description}</p>
+                    )}
+                    <p className="text-text-disabled text-xs mt-0.5">{pattern.cells.length} cells</p>
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    <Button variant="secondary" size="sm" onClick={() => handleStartEdit(pattern)}>Edit</Button>
+                    <Button variant="destructive" size="sm" onClick={() => handleDeleteClick(pattern.id)}>✕</Button>
+                  </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <PatternEditModal

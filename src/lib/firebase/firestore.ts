@@ -282,6 +282,17 @@ export async function deleteCustomPattern(
   await deleteDoc(patternRef);
 }
 
+export function subscribeToHostGames(
+  hostId: string,
+  callback: (games: Game[]) => void
+): () => void {
+  const gamesRef = collection(db, "games").withConverter(gameConverter);
+  const q = query(gamesRef, where("hostId", "==", hostId), orderBy("createdAt", "desc"));
+  return onSnapshot(q, (snapshot) => {
+    callback(snapshot.docs.map((doc) => doc.data()));
+  });
+}
+
 export function subscribeToCustomPatterns(
   userId: string,
   callback: (patterns: CustomPattern[]) => void

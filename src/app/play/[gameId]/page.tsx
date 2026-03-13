@@ -4,8 +4,10 @@ import { useParams } from "next/navigation";
 import { useGame } from "@/lib/hooks/useGame";
 import { useCalledNumbers } from "@/lib/hooks/useCalledNumbers";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
-import { getColumnColor, getColumn } from "@/lib/utils/bingo";
+import { getColumnColor } from "@/lib/utils/bingo";
 import type { BingoColumn } from "@/types";
+import { motion, AnimatePresence } from "framer-motion";
+import { numberBallVariants } from "@/lib/animations";
 
 const COLUMN_RANGES: Record<BingoColumn, [number, number]> = {
   B: [1, 15], I: [16, 30], N: [31, 45], G: [46, 60], O: [61, 75],
@@ -74,19 +76,26 @@ export default function PlayerGamePage() {
         )}
 
         {currentNumber ? (
-          <div className="relative text-center space-y-2 animate-fade-up">
+          <div className="relative text-center space-y-2">
             <p className="text-text-disabled text-xs font-mono uppercase tracking-[0.2em]">Now Calling</p>
-            <div
-              className="font-display font-black leading-none"
-              style={{
-                fontSize: "clamp(6rem, 28vw, 10rem)",
-                color: currentColColor,
-                textShadow: `0 0 60px ${currentColColor}80, 0 0 20px ${currentColColor}40`,
-              }}
-            >
-              {currentNumber[0]}
-              <span className="text-text-primary">{currentNumber.slice(1)}</span>
-            </div>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentNumber}
+                variants={numberBallVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                className="font-display font-black leading-none"
+                style={{
+                  fontSize: "clamp(6rem, 28vw, 10rem)",
+                  color: currentColColor,
+                  textShadow: `0 0 60px ${currentColColor}80, 0 0 20px ${currentColColor}40`,
+                }}
+              >
+                {currentNumber[0]}
+                <span className="text-text-primary">{currentNumber.slice(1)}</span>
+              </motion.div>
+            </AnimatePresence>
             {/* Recent calls row */}
             <div className="flex items-center justify-center gap-1.5 pt-3 flex-wrap">
               {calledNumbers.slice(1, 7).map((n, i) => {
