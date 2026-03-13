@@ -3,18 +3,21 @@
 import { useParams } from "next/navigation";
 import { useGame } from "@/lib/hooks/useGame";
 import { useCalledNumbers } from "@/lib/hooks/useCalledNumbers";
+import { useCustomPatterns } from "@/lib/hooks/useCustomPatterns";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { BingoBall } from "@/components/bingo/BingoBall";
 import { PatternVisualizer } from "@/components/bingo/PatternVisualizer";
 import { getColumnColor, getActualNumber } from "@/lib/utils/bingo";
 import { PATTERN_DEFINITIONS } from "@/lib/utils/patterns";
-import type { BingoColumn } from "@/types";
+import type { BingoColumn, CustomPattern } from "@/types";
 
 export default function PlayerGamePage() {
   const params = useParams();
   const gameId = params.gameId as string;
   const { game, loading: gameLoading } = useGame(gameId);
   const { calledNumbers, loading: numbersLoading } = useCalledNumbers(gameId);
+  // Fetch host's custom patterns so we can resolve pattern IDs → names + cells
+  const { patterns: customPatterns } = useCustomPatterns(game?.hostId);
 
   if (gameLoading || numbersLoading) {
     return (
@@ -40,11 +43,23 @@ export default function PlayerGamePage() {
   const previousNumbers = calledNumbers.slice(1);
   const currentRound = game.rounds[game.currentRound - 1];
 
-  const patternName = (() => {
-    if (!currentRound) return "";
-    const def = PATTERN_DEFINITIONS[currentRound.pattern];
-    return def ? def.name : currentRound.pattern.replace(/_/g, " ");
-  })();
+  // Resolve pattern: built-in string | CustomPattern object | fallback
+  const resolvePattern = (patternId: string): { name: string; pattern: string | CustomPattern } => {
+    // Check built-in patterns first
+    const builtIn = PATTERN_DEFINITIONS[patternId];
+    if (builtIn) return { name: builtIn.name, pattern: patternId };
+
+    // Check host's custom patterns
+    const custom = customPatterns.find((p) => p.id === patternId);
+    if (custom) return { name: custom.name, pattern: custom };
+
+    // Fallback — pattern not found yet (still loading or unknown)
+    return { name: patternId.replace(/_/g, " "), pattern: patternId };
+  };
+
+  const { name: patternName, pattern: resolvedPattern } = currentRound
+    ? resolvePattern(currentRound.pattern)
+    : { name: "", pattern: "" };
 
   return (
     <div className="min-h-screen bg-base flex flex-col">
@@ -105,7 +120,7 @@ export default function PlayerGamePage() {
                 return (
                   <div
                     key={n.id}
-                    className="flex items-center justify-center rounded-xl font-mono font-bold text-sm transition-all"
+                    className="flex items-center justify-center rounded-xl font-mono font-bold text-sm"
                     style={{
                       width: 48,
                       height: 48,
@@ -143,7 +158,6 @@ export default function PlayerGamePage() {
               )}
             </div>
 
-            {/* Divider */}
             <div className="h-px bg-bg-border" />
 
             {/* Pattern */}
@@ -153,7 +167,9 @@ export default function PlayerGamePage() {
                 <p className="text-text-primary font-semibold text-sm">{patternName}</p>
               </div>
               <div className="flex justify-center">
-                <PatternVisualizer pattern={currentRound.pattern} size="md" />
+                {resolvedPattern ? (
+                  <PatternVisualizer pattern={resolvedPattern as any} size="md" />
+                ) : null}
               </div>
               {currentRound.pattern === "traditional_line" && (
                 <p className="text-text-secondary text-xs text-center">
@@ -167,7 +183,7 @@ export default function PlayerGamePage() {
               )}
             </div>
 
-            {/* Winner banner if round is complete */}
+            {/* Winner banner */}
             {currentRound.winnerName && (
               <>
                 <div className="h-px bg-bg-border" />
@@ -183,7 +199,7 @@ export default function PlayerGamePage() {
           </div>
         )}
 
-        {/* Game ended state */}
+        {/* Game ended */}
         {game.status === "ended" && (
           <div className="card p-6 text-center space-y-2">
             <div className="text-4xl">🏁</div>

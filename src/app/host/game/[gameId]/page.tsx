@@ -9,7 +9,7 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { getAllNumbers, getColumnColor, getActualNumber, formatNumber } from "@/lib/utils/bingo";
 import { BingoBall } from "@/components/bingo/BingoBall";
-import { addCalledNumber, updateGame, removeCalledNumber } from "@/lib/firebase/firestore";
+import { addCalledNumber, updateGame, removeCalledNumber, clearCalledNumbers } from "@/lib/firebase/firestore";
 import { Button } from "@/components/ui/button";
 import { WinnerModal } from "@/components/host/WinnerModal";
 import { RoundCompleteModal } from "@/components/host/RoundCompleteModal";
@@ -136,8 +136,10 @@ export default function HostGamePage() {
       }
 
       await updateGame(gameId, updates);
+      // Clear called numbers so the next round starts fresh
+      await clearCalledNumbers(gameId);
       setShowWinnerModal(false);
-      
+
       // Show round completion modal
       setCompletedRoundInfo({
         roundNumber: game.currentRound,

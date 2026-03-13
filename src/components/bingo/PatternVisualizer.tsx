@@ -46,11 +46,12 @@ export function PatternVisualizer({
         return (
           <div
             key={`${row},${col}`}
-            className={`aspect-square ${sizeClasses[size]} rounded border ${
+            className={`aspect-square ${sizeClasses[size]} rounded-lg border-2 transition-colors ${
               isCenter || isSelected
-                ? "bg-primary border-primary"
-                : "bg-elevated border-border"
+                ? "border-primary"
+                : "bg-elevated border-bg-border"
             }`}
+            style={isCenter || isSelected ? { backgroundColor: "var(--accent-primary)", boxShadow: "0 0 6px rgba(108,99,255,0.4)" } : {}}
           />
         );
       })}

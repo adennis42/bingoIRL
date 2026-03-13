@@ -10,6 +10,7 @@ import {
   setDoc,
   updateDoc,
   deleteDoc,
+  writeBatch,
   onSnapshot,
   Timestamp,
   QueryConstraint,
@@ -135,6 +136,20 @@ export async function addCalledNumber(
 export async function removeCalledNumber(gameId: string, numberId: string): Promise<void> {
   const ref = doc(db, "games", gameId, "calledNumbers", numberId);
   await deleteDoc(ref);
+}
+
+export async function clearCalledNumbers(gameId: string): Promise<void> {
+  const numbersRef = collection(db, "games", gameId, "calledNumbers");
+  const snapshot = await getDocs(numbersRef);
+  if (snapshot.empty) return;
+  // Batch deletes in chunks of 500 (Firestore limit)
+  const BATCH_SIZE = 500;
+  const docs = snapshot.docs;
+  for (let i = 0; i < docs.length; i += BATCH_SIZE) {
+    const batch = writeBatch(db);
+    docs.slice(i, i + BATCH_SIZE).forEach((d) => batch.delete(d.ref));
+    await batch.commit();
+  }
 }
 
 export function subscribeToCalledNumbers(
