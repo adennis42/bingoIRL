@@ -424,7 +424,7 @@ export default function HostGamePage() {
                       opacity: i === 0 ? 1 : Math.max(0.4, 1 - i * 0.1),
                     }}
                   >
-                    {num.number}
+                    {num.number[0]}{getActualNumber(num.number)}
                   </div>
                 ))}
               </div>

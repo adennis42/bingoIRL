@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import { useGame } from "@/lib/hooks/useGame";
 import { useCalledNumbers } from "@/lib/hooks/useCalledNumbers";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
-import { getColumnColor } from "@/lib/utils/bingo";
+import { getColumnColor, getActualNumber } from "@/lib/utils/bingo";
 import type { BingoColumn } from "@/types";
 import { BingoBall } from "@/components/bingo/BingoBall";
 
@@ -98,7 +98,7 @@ export default function PlayerGamePage() {
                       opacity: Math.max(0.35, 1 - i * 0.13),
                     }}
                   >
-                    {n.number}
+                    {n.number[0]}{getActualNumber(n.number)}
                   </span>
                 );
               })}

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { getColumnColor } from "@/lib/utils/bingo";
+import { getColumnColor, getActualNumber } from "@/lib/utils/bingo";
 import type { BingoColumn } from "@/types";
 
 interface BingoBallProps {
@@ -15,14 +15,15 @@ interface BingoBallProps {
 
 function BallInner({ number, size = 200 }: { number: string; size?: number }) {
   const col = number[0] as BingoColumn;
-  const num = number.slice(1);
+  const num = getActualNumber(number); // "O1" → 61, "B5" → 5, etc.
   const color = getColumnColor(col);
 
   // Derived sizes — all proportional to ball diameter
   const ovalW = size * 0.54;
   const ovalH = size * 0.60;
   const letterSize = size * 0.14;
-  const numSize = size * 0.30;
+  // Slightly smaller font for 2-digit numbers so they fit the oval
+  const numSize = num >= 10 ? size * 0.28 : size * 0.32;
   const shineW = size * 0.28;
   const shineH = size * 0.16;
 
