@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-base: #0a0a0f;
+  --bg-surface: #13131a;
+  --bg-elevated: #1c1c28;
+  --bg-border: #2a2a3a;
+
+  --accent-primary: #6c63ff;
+  --accent-secondary: #00d4aa;
+  --accent-warn: #ff6b6b;
+  --accent-gold: #ffd166;
+
+  --text-primary: #f0f0ff;
+  --text-secondary: #8888aa;
+  --text-disabled: #44445a;
+
+  --col-b: #6c63ff;
+  --col-i: #00d4aa;
+  --col-n: #ffd166;
+  --col-g: #ff6b6b;
+  --col-o: #a78bfa;
+
+  --radius: 0.5rem;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: "DM Sans", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Syne", sans-serif;
+    font-weight: 700;
+  }
+
+  code,
+  pre,
+  .mono {
+    font-family: "JetBrains Mono", monospace;
+  }
+}

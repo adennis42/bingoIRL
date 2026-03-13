@@ -1,402 +1,466 @@
-# Bingo Host Application - Development Context
+# Bingo Host App — Next.js Migration
+# Cursor Agent Rules
 
 ## Project Overview
-A cross-platform mobile and web application built with Flutter and Firebase that enables bingo hosts to manage live bingo games in physical venues. Players use physical bingo cards while following along digitally through the app.
+A real-time bingo hosting web application. Hosts manage live games (calling numbers, tracking rounds, managing winners). Players join via a 6-digit code and follow along on their devices with real-time updates. Physical bingo cards are used in-venue; this app is the digital companion.
 
-## Core Purpose
-Enable seamless bingo game hosting where:
-- Hosts manage game flow (calling numbers, tracking rounds, managing winners)
-- Players view called numbers in real-time on their devices
-- All participants stay synchronized through Firebase real-time updates
-- Physical bingo cards and venues remain the primary experience
+---
 
 ## Tech Stack
 
-### Frontend
-- **Framework:** Flutter (latest stable)
-- **Platforms:** iOS, Android, Web
-- **State Management:** Provider or Riverpod (to be decided)
-- **Key Packages:**
-  - `firebase_core` - Firebase initialization
-  - `cloud_firestore` - Real-time database
-  - `firebase_auth` - Authentication
-  - `qr_flutter` - QR code generation for game codes
-  - `responsive_framework` - Responsive layouts
+| Layer | Choice |
+|---|---|
+| Framework | Next.js 14+ (App Router) |
+| Language | TypeScript (strict mode) |
+| Database / Realtime | Firebase (Firestore + Auth) |
+| Styling | Tailwind CSS + CSS Variables |
+| UI Components | shadcn/ui |
+| State Management | Zustand |
+| Animations | Framer Motion |
+| Forms | React Hook Form + Zod |
+| Fonts | Google Fonts via `next/font` |
+| Hosting | Vercel |
 
-### Backend
-- **Platform:** Firebase
-- **Services:**
-  - Firebase Authentication (email/password for hosts, anonymous for players)
-  - Cloud Firestore (real-time database)
-  - Firebase Hosting (web deployment)
-  - Cloud Functions (optional, for cleanup and analytics)
+---
 
-## Data Architecture
+## Design System & Visual Identity
 
-### Firestore Structure
+### Aesthetic Direction
+Modern, high-energy bingo hall translated into a sleek digital experience. Think: dark ambient base with vivid electric accents — the energy of a live event without the dated clip-art bingo aesthetics. Clean, readable, and fast. Every screen should feel purposeful and polished.
+
+### Color Palette (CSS Variables — define in `globals.css`)
+```css
+:root {
+  --bg-base: #0a0a0f;           /* near-black base */
+  --bg-surface: #13131a;        /* card/panel backgrounds */
+  --bg-elevated: #1c1c28;       /* elevated surfaces, modals */
+  --bg-border: #2a2a3a;         /* subtle borders */
+
+  --accent-primary: #6c63ff;    /* electric violet — primary actions */
+  --accent-secondary: #00d4aa;  /* teal-green — success, called numbers */
+  --accent-warn: #ff6b6b;       /* coral — undo, danger */
+  --accent-gold: #ffd166;       /* gold — prizes, winners */
+
+  --text-primary: #f0f0ff;      /* near-white */
+  --text-secondary: #8888aa;    /* muted labels */
+  --text-disabled: #44445a;     /* disabled states */
+
+  /* Bingo column colors */
+  --col-b: #6c63ff;   /* B — violet */
+  --col-i: #00d4aa;   /* I — teal */
+  --col-n: #ffd166;   /* N — gold */
+  --col-g: #ff6b6b;   /* G — coral */
+  --col-o: #a78bfa;   /* O — lavender */
+}
+```
+
+### Typography
+- **Display / Headings:** `Syne` (Google Fonts) — geometric, bold, distinctive
+- **Body / UI:** `DM Sans` (Google Fonts) — clean, highly readable at all sizes
+- **Monospaced / Numbers:** `JetBrains Mono` — for bingo number displays, game codes
+- Never use Inter, Roboto, Arial, or system-ui as primary fonts
+
+### Spacing & Layout
+- Use Tailwind spacing scale consistently
+- Cards use `rounded-2xl` with subtle `border border-[--bg-border]`
+- Shadows: `shadow-[0_4px_24px_rgba(108,99,255,0.12)]` for elevated surfaces
+- Game grid and number displays should be generous — large touch targets (min 48x48px)
+- Responsive: mobile-first, single column → two column at `md:` → dashboard layout at `lg:`
+
+### Motion Principles (Framer Motion)
+- Number called: dramatic pop-in with brief glow pulse on the number ball
+- New number appearing in the grid: fade + scale from 0.8 → 1
+- Screen transitions: subtle fade-slide (y: 8px → 0)
+- Toasts / notifications: slide in from top-right
+- No layout-breaking or distracting animations — motion enhances, never distracts
+- Respect `prefers-reduced-motion`
+
+---
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── layout.tsx                  # Root layout, font config, providers
+│   ├── globals.css                 # CSS variables, Tailwind base
+│   ├── page.tsx                    # Landing / marketing page
+│   ├── (auth)/
+│   │   ├── login/page.tsx
+│   │   └── register/page.tsx
+│   ├── host/
+│   │   ├── dashboard/page.tsx      # Host game list + create button
+│   │   ├── create/page.tsx         # Game setup form
+│   │   └── game/[gameId]/page.tsx  # Live hosting view
+│   └── play/
+│       ├── page.tsx                # Code entry screen
+│       └── [gameId]/page.tsx       # Player game view
+├── components/
+│   ├── ui/                         # shadcn/ui primitives
+│   ├── bingo/
+│   │   ├── BingoGrid.tsx           # 75-number grid (host + player)
+│   │   ├── NumberBall.tsx          # Individual number display
+│   │   ├── CalledNumberDisplay.tsx # Large "current number" display
+│   │   ├── RoundInfo.tsx           # Pattern, prize, round progress
+│   │   └── PatternVisualizer.tsx   # Visual 5x5 pattern preview
+│   ├── host/
+│   │   ├── NumberCallerGrid.tsx    # Tappable 75-button grid
+│   │   ├── PlayerCount.tsx
+│   │   ├── RoundControls.tsx
+│   │   └── WinnerModal.tsx
+│   ├── player/
+│   │   ├── JoinForm.tsx
+│   │   └── WaitingScreen.tsx
+│   └── shared/
+│       ├── GameCodeDisplay.tsx     # Styled game code + QR
+│       ├── StatusBadge.tsx
+│       └── LoadingSpinner.tsx
+├── lib/
+│   ├── firebase/
+│   │   ├── config.ts               # Firebase init
+│   │   ├── auth.ts                 # Auth helpers
+│   │   ├── firestore.ts            # Firestore helpers
+│   │   └── converters.ts           # Typed Firestore converters
+│   ├── hooks/
+│   │   ├── useGame.ts              # Real-time game listener
+│   │   ├── useCalledNumbers.ts     # Real-time called numbers listener
+│   │   ├── useAuth.ts              # Auth state
+│   │   └── usePlayers.ts          # Player count listener
+│   ├── stores/
+│   │   └── gameStore.ts            # Zustand store for local game state
+│   ├── utils/
+│   │   ├── bingo.ts                # Number generation, column logic
+│   │   └── patterns.ts             # Winning pattern definitions
+│   └── validations/
+│       └── schemas.ts              # Zod schemas
+├── types/
+│   └── index.ts                    # All shared TypeScript types
+└── middleware.ts                   # Auth route protection
+```
+
+---
+
+## Data Architecture (Firestore)
+
+### Collections
 ```
 /games/{gameId}
   - hostId: string
-  - gameCode: string (6-digit alphanumeric)
-  - status: enum ["setup", "active", "paused", "ended"]
-  - createdAt: timestamp
+  - gameCode: string          // 6-digit alphanumeric, uppercase
+  - status: "setup" | "active" | "paused" | "ended"
+  - createdAt: Timestamp
   - currentRound: number
   - totalRounds: number
-  - rounds: array of objects
-    - roundNumber: number
-    - pattern: string (e.g., "traditional_line", "four_corners", "blackout")
-    - prize: string (optional)
-    - winnerId: string (optional)
-    - winnerName: string (optional)
-    - completedAt: timestamp (optional)
+  - rounds: Round[]
 
-/games/{gameId}/calledNumbers (subcollection)
-  - {documentId}
-    - number: string (format: "B7", "I23", "N45", "G60", "O75")
-    - calledAt: timestamp
-    - sequence: number (1-75, order called)
+/games/{gameId}/calledNumbers/{docId}
+  - number: string            // format: "B7", "I23", "N45", "G60", "O75"
+  - calledAt: Timestamp
+  - sequence: number
 
-/games/{gameId}/players (subcollection)
-  - {playerId}
-    - displayName: string (optional)
-    - joinedAt: timestamp
-    - isActive: boolean
+/games/{gameId}/players/{playerId}
+  - displayName: string | null
+  - joinedAt: Timestamp
+  - isActive: boolean
 
-/users/{userId} (hosts only)
+/users/{userId}               // hosts only
   - email: string
   - displayName: string
-  - createdAt: timestamp
+  - createdAt: Timestamp
   - gamesHosted: number
 ```
 
-### Bingo Number Format
-- B: 1-15
-- I: 16-30
-- N: 31-45
-- G: 46-60
-- O: 61-75
+### TypeScript Types (define in `types/index.ts`)
+```typescript
+export type GameStatus = "setup" | "active" | "paused" | "ended";
+export type WinningPattern = "traditional_line" | "four_corners" | "blackout";
+export type BingoColumn = "B" | "I" | "N" | "G" | "O";
 
-### Winning Patterns (MVP)
-1. **Traditional Line:** Any horizontal, vertical, or diagonal line
-2. **Four Corners:** All four corner squares
-3. **Blackout/Coverall:** All squares on the card
+export interface Round {
+  roundNumber: number;
+  pattern: WinningPattern;
+  prize?: string;
+  winnerId?: string;
+  winnerName?: string;
+  completedAt?: Date;
+}
 
-### Winning Patterns (Future)
-- X Pattern
-- Plus/Cross Pattern
-- Picture Frame (outer edge)
-- Letter patterns (T, L, etc.)
-- Custom patterns
+export interface Game {
+  id: string;
+  hostId: string;
+  gameCode: string;
+  status: GameStatus;
+  createdAt: Date;
+  currentRound: number;
+  totalRounds: number;
+  rounds: Round[];
+}
 
-## User Roles & Permissions
+export interface CalledNumber {
+  number: string;
+  calledAt: Date;
+  sequence: number;
+}
 
-### Host
-- Must be authenticated (email/password)
-- Can create games
-- Can modify only their own games
-- Can call numbers
-- Can mark winners
-- Can end games
-- Can view player count
-
-### Player
-- Anonymous authentication (no signup required)
-- Can join games with valid code
-- Read-only access to game data
-- Can view called numbers in real-time
-- Can view round information
-
-## Core Features
-
-### Phase 1: MVP Features
-1. **Host Authentication**
-   - Email/password registration and login
-   - Password reset functionality
-   - Session management
-
-2. **Game Creation & Setup**
-   - Configure number of rounds (1-10)
-   - Set winning pattern per round
-   - Add optional prize description per round
-   - Generate unique 6-digit game code
-   - Display QR code for easy joining
-
-3. **Number Calling Interface (Host)**
-   - 75-button grid (B-I-N-G-O columns)
-   - Visual indication of called vs uncalled numbers
-   - Large display of current number
-   - Call history display
-   - Undo last called number
-   - Round progress indicator
-
-4. **Player Join & View**
-   - Enter game code to join
-   - Real-time display of current number
-   - Grid view of all called numbers
-   - Current round information (pattern, prize)
-   - Player count display
-
-5. **Round Management**
-   - Progress through rounds sequentially
-   - Mark winner for each round
-   - Automatic advancement to next round
-   - End game functionality
-
-6. **Real-time Synchronization**
-   - All players see updates within 1-2 seconds
-   - Handle network disconnections gracefully
-   - Optimistic UI updates for host
-
-### Phase 2: Enhanced Features
-- Multiple winning patterns
-- Improved UI/UX with animations
-- Game statistics dashboard
-- Export game history
-- Sound effects for number calling
-- Large display/presentation mode
-- Dark mode
-
-### Phase 3: Advanced Features
-- Game templates
-- Player profiles (optional)
-- Analytics dashboard
-- Tournament mode
-- Custom pattern creator
-- Voice calling with speech recognition
-
-## User Flows
-
-### Host Flow
-1. Open app → Sign in/Register
-2. Tap "Create New Game"
-3. Configure game settings:
-   - Number of rounds
-   - Pattern for each round
-   - Optional prizes
-4. Review and create → Game code generated
-5. Share code/QR with players
-6. Monitor players joining
-7. Start game when ready
-8. Call numbers by tapping grid
-9. Mark winner when claimed
-10. Progress through rounds
-11. End game → View summary
-
-### Player Flow
-1. Open app (no login)
-2. Tap "Join Game"
-3. Enter 6-digit code or scan QR
-4. See waiting screen with game info
-5. View called numbers in real-time
-6. Follow along with physical card
-7. Call "Bingo!" physically to host when pattern achieved
-8. Continue through all rounds
-
-## UI/UX Considerations
-
-### Design Principles
-- **Clarity:** Large, readable numbers and buttons
-- **Speed:** Quick number calling with minimal taps
-- **Reliability:** Clear feedback on all actions
-- **Accessibility:** High contrast, large touch targets
-- **Simplicity:** Minimal learning curve
-
-### Key Screens
-1. **Host Dashboard:** List of past/active games, create new button
-2. **Game Setup:** Form for configuring rounds and patterns
-3. **Host Game View:** Number grid, current number, player count, controls
-4. **Player Join:** Code entry screen
-5. **Player Game View:** Current number, called numbers grid, round info
-6. **Game Summary:** Stats, winners, duration
-
-### Responsive Breakpoints
-- Mobile: < 600px (single column, vertical scrolling)
-- Tablet: 600-1200px (two-column when appropriate)
-- Desktop: > 1200px (multi-panel dashboard layout)
-
-## Development Phases
-
-### Phase 1: MVP (Weeks 1-3)
-**Week 1:**
-- Project initialization
-- Firebase configuration (all platforms)
-- Authentication system
-- Basic navigation structure
-- Data models
-
-**Week 2:**
-- Game creation flow
-- Number calling interface
-- Firestore integration
-- Real-time listeners
-
-**Week 3:**
-- Player join functionality
-- Game synchronization
-- Basic UI polish
-- Testing and bug fixes
-
-### Phase 2: Enhanced (Weeks 4-6)
-- Additional winning patterns
-- Prize management
-- Undo functionality
-- Animations and transitions
-- QR code integration
-- Display mode
-
-### Phase 3: Advanced (Weeks 7-10)
-- Analytics
-- Game templates
-- Export functionality
-- Advanced features
-- Performance optimization
-- Comprehensive testing
-
-## Security Requirements
-
-### Firestore Security Rules (Key Points)
-- Hosts can only create/modify their own games
-- Players can only read games they've joined
-- Game codes must be valid to join
-- No unauthorized writes to game data
-- Rate limiting on critical operations
-
-### Authentication
-- Secure password requirements (min 8 chars)
-- Email verification (optional for MVP)
-- Session timeout handling
-- Secure token storage
-
-## Performance Targets
-- App launch: < 2 seconds
-- Number call response: < 500ms
-- Real-time update latency: < 2 seconds
-- Support 100+ concurrent players per game
-- Offline mode: Cache last game state
-
-## Testing Strategy
-- Unit tests for business logic
-- Widget tests for UI components
-- Integration tests for Firebase operations
-- End-to-end tests for critical flows
-- Manual testing on multiple devices
-- Network condition testing
-
-## Firebase Costs & Limits
-**Free Tier Limits:**
-- Firestore: 50K reads/day, 20K writes/day, 1GB storage
-- Authentication: Unlimited
-- Hosting: 10GB storage, 360MB/day transfer
-
-**Expected Usage (per game):**
-- ~75 number calls (writes)
-- ~100-200 reads per player
-- Should stay within free tier for moderate use
-
-## Code Organization
-```
-lib/
-├── main.dart
-├── app.dart
-├── core/
-│   ├── constants/
-│   ├── theme/
-│   ├── utils/
-│   └── services/
-│       ├── auth_service.dart
-│       ├── firestore_service.dart
-│       └── game_service.dart
-├── features/
-│   ├── auth/
-│   │   ├── models/
-│   │   ├── screens/
-│   │   ├── widgets/
-│   │   └── providers/
-│   ├── host/
-│   │   ├── models/
-│   │   ├── screens/
-│   │   ├── widgets/
-│   │   └── providers/
-│   └── player/
-│       ├── models/
-│       ├── screens/
-│       ├── widgets/
-│       └── providers/
-└── shared/
-    ├── models/
-    ├── widgets/
-    └── utils/
-```
-
-## Key Models
-
-### Game Model
-```dart
-class Game {
-  String id;
-  String hostId;
-  String gameCode;
-  GameStatus status;
-  DateTime createdAt;
-  int currentRound;
-  int totalRounds;
-  List<Round> rounds;
-  List<String> calledNumbers;
+export interface Player {
+  id: string;
+  displayName?: string;
+  joinedAt: Date;
+  isActive: boolean;
 }
 ```
 
-### Round Model
-```dart
-class Round {
-  int roundNumber;
-  WinningPattern pattern;
-  String? prize;
-  String? winnerId;
-  String? winnerName;
-  DateTime? completedAt;
+---
+
+## Bingo Number Logic
+
+```typescript
+// lib/utils/bingo.ts
+
+export const COLUMN_RANGES: Record<BingoColumn, [number, number]> = {
+  B: [1, 15],
+  I: [16, 30],
+  N: [31, 45],
+  G: [46, 60],
+  O: [61, 75],
+};
+
+export function getColumn(number: string): BingoColumn {
+  return number[0] as BingoColumn;
+}
+
+export function formatNumber(num: number): string {
+  if (num <= 15) return `B${num}`;
+  if (num <= 30) return `I${num}`;
+  if (num <= 45) return `N${num}`;
+  if (num <= 60) return `G${num}`;
+  return `O${num}`;
+}
+
+export function getAllNumbers(): string[] {
+  return Array.from({ length: 75 }, (_, i) => formatNumber(i + 1));
 }
 ```
 
-### Called Number Model
-```dart
-class CalledNumber {
-  String number; // "B7"
-  DateTime calledAt;
-  int sequence;
+---
+
+## Firebase Real-time Patterns
+
+### Game listener hook pattern
+```typescript
+// lib/hooks/useGame.ts
+export function useGame(gameId: string) {
+  const [game, setGame] = useState<Game | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      doc(db, "games", gameId),
+      (snap) => {
+        if (snap.exists()) {
+          setGame({ id: snap.id, ...snap.data() } as Game);
+        }
+        setLoading(false);
+      },
+      (err) => setError(err)
+    );
+    return () => unsubscribe();
+  }, [gameId]);
+
+  return { game, loading, error };
 }
 ```
 
-## Environment Setup
-1. Flutter SDK (latest stable)
-2. Firebase CLI
-3. IDE: VS Code or Android Studio
-4. Required Flutter plugins: Dart, Flutter
-5. Firebase project configuration files:
-   - `google-services.json` (Android)
-   - `GoogleService-Info.plist` (iOS)
-   - Firebase config object (Web)
+### Called numbers listener — order by sequence
+```typescript
+query(
+  collection(db, "games", gameId, "calledNumbers"),
+  orderBy("sequence", "desc")
+)
+```
 
-## Current Status
-- **Phase:** Planning Complete
-- **Next Steps:** Begin Phase 1 implementation
-- **Started:** Not yet
-- **Target MVP Completion:** 3 weeks from start
+---
 
-## Open Questions & Decisions Needed
-1. State management: Provider vs Riverpod vs Bloc?
-2. Should we implement voice calling in MVP or Phase 2?
-3. Payment integration timeline (for prize management)?
-4. Should players require any authentication or fully anonymous?
-5. Offline mode priority?
+## Key Screen Specifications
 
-## Notes for AI Coding Agents
-- Follow Flutter best practices and style guide
-- Use const constructors where possible for performance
-- Implement proper error handling for all Firebase operations
-- Add loading states for all async operations
-- Use meaningful variable and function names
-- Comment complex business logic
-- Handle edge cases (network failures, invalid inputs)
-- Optimize Firestore reads/writes to minimize costs
-- Test on both mobile and web platforms
-- Ensure responsive design at all breakpoints
+### Host Game View (`/host/game/[gameId]`)
+Layout (desktop `lg:`): Three-column grid
+- **Left panel:** Player count, round info (pattern name, prize, pattern visualizer), round controls
+- **Center panel:** Large current number display, call history (last 5 numbers)
+- **Right panel:** Full 75-number caller grid (tappable buttons)
+
+Layout (mobile): Stacked vertically — current number → called history → round info → number grid
+
+Number caller grid:
+- 5 columns (B/I/N/G/O), 15 rows each
+- Column header styled with its column color variable
+- Called numbers: filled with `--accent-secondary`, non-interactive appearance
+- Uncalled: outlined, tappable
+- Hover state: subtle glow matching column color
+
+### Player Game View (`/play/[gameId]`)
+- Top: Large current number ball (animated on update)
+- Below: Called numbers grid — compact, color-coded by column
+- Bottom sticky bar: Round info (pattern name, prize if set, round X of Y)
+- Connection status indicator (top-right corner)
+
+### Game Setup (`/host/create`)
+- Multi-step form: Step 1 (rounds count) → Step 2 (per-round config) → Step 3 (review + create)
+- Per-round config: pattern selector with visual preview, optional prize text field
+- Progress indicator at top
+
+### Join Screen (`/play`)
+- Centered, clean layout
+- Large code input with auto-uppercase, auto-focus
+- Support for URL param: `/play?code=ABC123` auto-fills the field
+- Subtle animated background (slow-moving gradient or particle field)
+
+---
+
+## Component Implementation Rules
+
+### General
+- All components are typed with TypeScript — no `any`
+- Use `"use client"` only when necessary (interactivity, hooks, browser APIs)
+- Server Components by default in the App Router
+- All async data fetching in Server Components or custom hooks
+- Export types alongside components when they might be reused
+
+### Styling
+- Tailwind utility classes only — no inline `style={{}}` except for dynamic CSS variable values
+- Use `cn()` (from `lib/utils.ts` via shadcn) for conditional class merging
+- Column colors applied via `style={{ color: 'var(--col-b)' }}` pattern for dynamic column mapping
+- Dark theme throughout — no light mode toggle needed for MVP
+
+### shadcn/ui Usage
+- Use shadcn primitives for: Dialog, Sheet, Button, Input, Select, Badge, Tooltip, Toast
+- Customize via Tailwind and CSS variables, not by forking component internals
+- Keep `components/ui/` untouched (shadcn managed); extend via wrapper components
+
+### Framer Motion
+- Wrap animated lists with `AnimatePresence` for enter/exit
+- Use `layout` prop on reordering lists
+- Keep animation configs in a shared `lib/animations.ts` constant file
+- Example number ball animation:
+```typescript
+const numberBallVariants = {
+  initial: { scale: 0.7, opacity: 0 },
+  animate: { scale: 1, opacity: 1, transition: { type: "spring", stiffness: 300, damping: 20 } },
+  exit: { scale: 0.8, opacity: 0 },
+};
+```
+
+---
+
+## Auth & Route Protection
+
+```typescript
+// middleware.ts
+export const config = {
+  matcher: ["/host/:path*"],
+};
+// Redirect unauthenticated users from /host/* to /login
+```
+
+- Hosts: email/password Firebase Auth
+- Players: Firebase anonymous auth (auto sign-in on join)
+- `useAuth` hook exposes `{ user, loading, isHost }`
+- `isHost` = user exists AND is not anonymous
+
+---
+
+## Firestore Security Rules
+
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /users/{userId} {
+      allow read, write: if request.auth.uid == userId;
+    }
+
+    match /games/{gameId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && !request.auth.token.firebase.sign_in_provider.matches('anonymous');
+      allow update, delete: if request.auth.uid == resource.data.hostId;
+
+      match /calledNumbers/{numberId} {
+        allow read: if request.auth != null;
+        allow write: if request.auth.uid == get(/databases/$(database)/documents/games/$(gameId)).data.hostId;
+      }
+
+      match /players/{playerId} {
+        allow read: if request.auth != null;
+        allow create: if request.auth.uid == playerId;
+        allow update: if request.auth.uid == playerId;
+      }
+    }
+  }
+}
+```
+
+---
+
+## Error Handling
+
+- All Firebase operations wrapped in try/catch with user-facing toast messages
+- Network disconnection: show a persistent banner ("Reconnecting...") using Firestore's `onSnapshotsInSync` / metadata
+- Invalid game code: clear inline error on the join form
+- Host tries to call a number already called: silently ignore (idempotent)
+- Game not found: redirect to `/play` with an error toast
+
+---
+
+## Environment Variables
+
+```
+# .env.local
+NEXT_PUBLIC_FIREBASE_API_KEY=
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+NEXT_PUBLIC_FIREBASE_APP_ID=
+```
+
+---
+
+## Code Quality Rules
+
+- **TypeScript:** strict mode, no implicit `any`, explicit return types on all functions
+- **Imports:** absolute imports via `@/` alias (configured in `tsconfig.json`)
+- **No magic numbers:** constants in `lib/constants.ts` (e.g., `MAX_ROUNDS = 10`, `GAME_CODE_LENGTH = 6`)
+- **Async:** always handle loading and error states — never assume success
+- **Comments:** explain *why*, not *what*; complex Firestore queries and real-time logic deserve comments
+- **File naming:** `PascalCase` for components, `camelCase` for hooks/utils, `kebab-case` for route segments
+- **Barrel exports:** each feature folder exports from an `index.ts`
+
+---
+
+## Performance
+
+- Firestore listeners: always unsubscribe in `useEffect` cleanup
+- Memoize expensive computations (e.g., splitting 75 numbers into columns) with `useMemo`
+- `next/font` for zero-layout-shift font loading
+- Images (QR codes, etc.) via `next/image`
+- Avoid unnecessary re-renders: Zustand slices, `React.memo` on pure display components like `NumberBall`
+
+---
+
+## What Was Migrated From Flutter
+
+This app was originally built in Flutter with Firebase. The data model, Firestore structure, and core game logic are preserved exactly. Only the presentation layer changes:
+
+| Flutter | Next.js Equivalent |
+|---|---|
+| `Provider` / `Riverpod` | Zustand + React hooks |
+| `StreamBuilder` | `useEffect` + `onSnapshot` |
+| `Navigator` | Next.js App Router |
+| `firebase_messaging` | Removed for MVP (no push notifications) |
+| `qr_flutter` | `qrcode.react` npm package |
+| `responsive_framework` | Tailwind responsive prefixes |
+| Flutter widgets | React components + shadcn/ui |
+
+Push notifications are explicitly out of scope for the initial web migration and will be revisited in a later phase.
