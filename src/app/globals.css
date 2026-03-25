@@ -121,4 +121,50 @@ body {
   ::-webkit-scrollbar-track { background: var(--bg-base); }
   ::-webkit-scrollbar-thumb { background: var(--bg-border); border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--text-disabled); }
+
+  /* Cell-shaded / Borderlands buttons */
+  .cel-btn-yellow,
+  .cel-btn-blue {
+    display: block;
+    width: 100%;
+  }
+
+  .cel-btn-yellow .cel-btn-inner,
+  .cel-btn-blue .cel-btn-inner {
+    display: block;
+    width: 100%;
+    padding: 1rem 1.5rem;
+    font-size: 1.25rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-family: 'Arial Black', 'Impact', sans-serif;
+    color: #1a1a1a;
+    border: 3px solid #1a1a1a;
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+    cursor: pointer;
+    text-align: center;
+  }
+
+  .cel-btn-yellow .cel-btn-inner {
+    background: #f5c542;
+    box-shadow: 5px 5px 0px #1a1a1a;
+  }
+
+  .cel-btn-blue .cel-btn-inner {
+    background: #4db8ff;
+    box-shadow: 5px 5px 0px #1a1a1a;
+  }
+
+  .cel-btn-yellow:hover .cel-btn-inner,
+  .cel-btn-blue:hover .cel-btn-inner {
+    transform: translate(-2px, -2px);
+    box-shadow: 7px 7px 0px #1a1a1a;
+  }
+
+  .cel-btn-yellow:active .cel-btn-inner,
+  .cel-btn-blue:active .cel-btn-inner {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px #1a1a1a;
+  }
 }
