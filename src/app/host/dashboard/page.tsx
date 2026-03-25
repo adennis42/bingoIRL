@@ -9,14 +9,6 @@ import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import Link from "next/link";
 import type { GameStatus } from "@/types";
 
-const CEL_BG = {
-  background: "#1a1008",
-  backgroundImage: `
-    repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.03) 40px, rgba(255,255,255,0.03) 41px),
-    repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.03) 40px, rgba(255,255,255,0.03) 41px)
-  `,
-};
-
 const STATUS_CONFIG: Record<GameStatus, { label: string; bg: string; dot: string }> = {
   setup:  { label: "SETUP",  bg: "#f5c542", dot: "#c49a00" },
   active: { label: "LIVE",   bg: "#50e878", dot: "#1a9933" },
@@ -45,7 +37,7 @@ export default function HostDashboardPage() {
   const pastGames = games.filter((g) => g.status === "ended" || g.status === "paused");
 
   return (
-    <div className="min-h-screen" style={CEL_BG}>
+    <div className="min-h-screen" style={{ background: "#111" }}>
       {/* Top yellow bar */}
       <div className="h-4 bg-[#f5c542]" />
 

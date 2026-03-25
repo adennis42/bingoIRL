@@ -8,14 +8,6 @@ import { addPlayer } from "@/lib/firebase/firestore";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import Link from "next/link";
 
-const CEL_BG = {
-  background: "#1a1008",
-  backgroundImage: `
-    repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.03) 40px, rgba(255,255,255,0.03) 41px),
-    repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.03) 40px, rgba(255,255,255,0.03) 41px)
-  `,
-};
-
 function PlayPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -51,7 +43,7 @@ function PlayPageInner() {
   const chars = code.split("").concat(Array(6 - code.length).fill(""));
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12 relative overflow-hidden" style={CEL_BG}>
+    <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12 relative overflow-hidden" style={{ background: "#111" }}>
       {/* Halftone */}
       <div className="fixed inset-0 pointer-events-none opacity-10"
         style={{ backgroundImage: `radial-gradient(circle, #4db8ff 1px, transparent 1px)`, backgroundSize: "24px 24px" }} />

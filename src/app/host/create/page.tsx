@@ -14,14 +14,6 @@ import { PATTERN_DEFINITIONS } from "@/lib/utils/patterns";
 import Link from "next/link";
 import type { Round } from "@/types";
 
-const CEL_BG = {
-  background: "#1a1008",
-  backgroundImage: `
-    repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.03) 40px, rgba(255,255,255,0.03) 41px),
-    repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.03) 40px, rgba(255,255,255,0.03) 41px)
-  `,
-};
-
 const PATTERN_OPTIONS = [
   { value: "traditional_line", label: "TRADITIONAL LINE" },
   { value: "four_corners",     label: "FOUR CORNERS" },
@@ -71,7 +63,7 @@ export default function CreateGamePage() {
   };
 
   return (
-    <div className="min-h-screen" style={CEL_BG}>
+    <div className="min-h-screen" style={{ background: "#111" }}>
       {/* Top bar */}
       <div className="h-4 bg-[#f5c542]" />
 

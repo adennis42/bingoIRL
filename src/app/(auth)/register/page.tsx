@@ -7,14 +7,6 @@ import { signUp } from "@/lib/firebase/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-const CEL_BG = {
-  background: "#1a1008",
-  backgroundImage: `
-    repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.03) 40px, rgba(255,255,255,0.03) 41px),
-    repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.03) 40px, rgba(255,255,255,0.03) 41px)
-  `,
-};
-
 const BINGO_COLORS = ["#f5c542","#e84040","#4db8ff","#50e878","#ff6b35"];
 
 export default function RegisterPage() {
@@ -39,7 +31,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden" style={CEL_BG}>
+    <div className="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden" style={{ background: "#111" }}>
       {/* Halftone overlay */}
       <div className="fixed inset-0 pointer-events-none opacity-10"
         style={{ backgroundImage: `radial-gradient(circle, #50e878 1px, transparent 1px)`, backgroundSize: "24px 24px" }} />

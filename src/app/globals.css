@@ -35,8 +35,8 @@
 html,
 body {
   height: 100%;
-  background-color: var(--bg-base);
-  color: var(--text-primary);
+  background-color: #111111;
+  color: #f0f0f0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -122,7 +122,7 @@ body {
   ::-webkit-scrollbar-thumb { background: var(--bg-border); border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--text-disabled); }
 
-  /* Cell-shaded / Borderlands buttons */
+  /* Cell-shaded / Borderlands link-buttons */
   .cel-btn-yellow,
   .cel-btn-blue {
     display: block;
@@ -134,37 +134,37 @@ body {
     display: block;
     width: 100%;
     padding: 1rem 1.5rem;
-    font-size: 1.25rem;
+    font-size: 1.125rem;
     font-weight: 900;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
     font-family: 'Arial Black', 'Impact', sans-serif;
-    color: #1a1a1a;
-    border: 3px solid #1a1a1a;
+    color: #111;
+    border: 3px solid #111;
     transition: transform 0.08s ease, box-shadow 0.08s ease;
     cursor: pointer;
     text-align: center;
   }
 
   .cel-btn-yellow .cel-btn-inner {
-    background: #f5c542;
-    box-shadow: 5px 5px 0px #1a1a1a;
+    background: linear-gradient(to bottom, #ffe066 0%, #f5c542 45%, #c49200 100%);
+    box-shadow: 5px 5px 0px #111, inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -3px 0 #8a6600;
   }
 
   .cel-btn-blue .cel-btn-inner {
-    background: #4db8ff;
-    box-shadow: 5px 5px 0px #1a1a1a;
+    background: linear-gradient(to bottom, #7dd4ff 0%, #4db8ff 45%, #1a80cc 100%);
+    box-shadow: 5px 5px 0px #111, inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -3px 0 #004d99;
   }
 
   .cel-btn-yellow:hover .cel-btn-inner,
   .cel-btn-blue:hover .cel-btn-inner {
     transform: translate(-2px, -2px);
-    box-shadow: 7px 7px 0px #1a1a1a;
+    box-shadow: 7px 7px 0px #111, inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -3px 0 rgba(0,0,0,0.3);
   }
 
   .cel-btn-yellow:active .cel-btn-inner,
   .cel-btn-blue:active .cel-btn-inner {
     transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0px #1a1a1a;
+    box-shadow: 2px 2px 0px #111, inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -1px 0 rgba(0,0,0,0.2);
   }
 }
