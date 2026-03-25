@@ -106,7 +106,7 @@ function PlayPageInner() {
               autoFocus
               autoComplete="off"
               className="w-full bg-[#2a1f0e] border-[3px] border-[#1a1a1a] px-4 py-3 text-center font-black text-lg tracking-[0.4em] text-white placeholder:text-[#4a3a2a] focus:outline-none focus:border-[#4db8ff] transition-colors"
-              style={{ boxShadow: "3px 3px 0px #1a1a1a" }}
+              style={{ boxShadow: "3px 3px 0px #1a1a1a", background: "#2a1f0e", color: "#ffffff" }}
             />
 
             {error && (

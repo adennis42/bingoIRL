@@ -1,14 +1,18 @@
 interface LoadingSpinnerProps {
-  /** "page" (default) adds padding for full-screen use; "inline" is tiny for buttons */
   variant?: "page" | "inline";
   size?: "sm" | "md";
 }
 
 export function LoadingSpinner({ variant = "page", size = "md" }: LoadingSpinnerProps) {
-  const dim = size === "sm" || variant === "inline" ? "h-4 w-4 border-2" : "h-8 w-8 border-4";
+  const dim = size === "sm" || variant === "inline" ? "h-4 w-4" : "h-10 w-10";
   const spinner = (
     <div
-      className={`animate-spin rounded-full border-border border-t-primary ${dim}`}
+      className={`animate-spin ${dim}`}
+      style={{
+        border: "3px solid #1a1a1a",
+        borderTop: "3px solid #f5c542",
+        borderRight: "3px solid #f5c542",
+      }}
     />
   );
   if (variant === "inline") return spinner;
