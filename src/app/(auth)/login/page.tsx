@@ -34,12 +34,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden" style={{ background: "#111" }}>
       {/* Halftone overlay */}
       <div className="fixed inset-0 pointer-events-none opacity-10"
-        style={{ backgroundImage: `radial-gradient(circle, #f5c542 1px, transparent 1px)`, backgroundSize: "24px 24px" }} />
-
-      {/* Top bar */}
-      <div className="absolute top-0 left-0 right-0 h-4 bg-[#f5c542]" />
-
-      <div className="relative z-10 w-full max-w-sm space-y-6">
+        style={{ backgroundImage: `radial-gradient(circle, #f5c542 1px, transparent 1px)`, backgroundSize: "24px 24px" }} /><div className="relative z-10 w-full max-w-sm space-y-6">
         {/* Logo */}
         <Link href="/" className="flex items-center justify-center gap-1.5 mb-2">
           {["B","I","N","G","O"].map((l, i) => (
@@ -89,9 +84,5 @@ export default function LoginPage() {
           <Link href="/register" className="text-[#f5c542] hover:underline font-black">Sign up free</Link>
         </p>
       </div>
-
-      {/* Bottom bar */}
-      <div className="absolute bottom-0 left-0 right-0 h-4 bg-[#e84040]" />
-    </div>
   );
 }

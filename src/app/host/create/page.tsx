@@ -63,11 +63,7 @@ export default function CreateGamePage() {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: "#111" }}>
-      {/* Top bar */}
-      <div className="h-4 bg-[#f5c542]" />
-
-      <div className="max-w-xl mx-auto px-4 py-6 space-y-5">
+    <div className="min-h-screen" style={{ background: "#111" }}><div className="max-w-xl mx-auto px-4 py-6 space-y-5">
         {/* Back */}
         <Link href="/host/dashboard" className="inline-flex items-center gap-1 text-[#8a7a5a] hover:text-[#f5c542] font-black uppercase text-xs tracking-widest transition-colors">
           ← BACK
@@ -200,9 +196,5 @@ export default function CreateGamePage() {
           {loading ? <LoadingSpinner /> : "🎙️ CREATE GAME"}
         </Button>
       </div>
-
-      {/* Bottom bar */}
-      <div className="h-4 bg-[#e84040] mt-6" />
-    </div>
   );
 }

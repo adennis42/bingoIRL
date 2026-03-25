@@ -46,12 +46,7 @@ function PlayPageInner() {
     <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12 relative overflow-hidden" style={{ background: "#111" }}>
       {/* Halftone */}
       <div className="fixed inset-0 pointer-events-none opacity-10"
-        style={{ backgroundImage: `radial-gradient(circle, #4db8ff 1px, transparent 1px)`, backgroundSize: "24px 24px" }} />
-
-      {/* Top strip */}
-      <div className="absolute top-0 left-0 right-0 h-4 bg-[#4db8ff]" />
-
-      <div className="relative z-10 w-full max-w-sm space-y-6">
+        style={{ backgroundImage: `radial-gradient(circle, #4db8ff 1px, transparent 1px)`, backgroundSize: "24px 24px" }} /><div className="relative z-10 w-full max-w-sm space-y-6">
         {/* Back */}
         <Link href="/" className="flex items-center gap-1 text-[#8a7a5a] hover:text-[#f5c542] transition-colors text-sm font-black uppercase tracking-wide">
           ← BACK
@@ -131,10 +126,6 @@ function PlayPageInner() {
           <Link href="/login" className="text-[#f5c542] hover:underline font-black">Sign in here</Link>
         </p>
       </div>
-
-      {/* Bottom strip */}
-      <div className="absolute bottom-0 left-0 right-0 h-4 bg-[#4db8ff]" />
-    </div>
   );
 }
 

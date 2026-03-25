@@ -37,11 +37,7 @@ export default function HostDashboardPage() {
   const pastGames = games.filter((g) => g.status === "ended" || g.status === "paused");
 
   return (
-    <div className="min-h-screen" style={{ background: "#111" }}>
-      {/* Top yellow bar */}
-      <div className="h-4 bg-[#f5c542]" />
-
-      <div className="max-w-xl mx-auto px-4 py-6 space-y-5">
+    <div className="min-h-screen" style={{ background: "#111" }}><div className="max-w-xl mx-auto px-4 py-6 space-y-5">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -166,9 +162,5 @@ export default function HostDashboardPage() {
           </div>
         )}
       </div>
-
-      {/* Bottom red bar */}
-      <div className="h-4 bg-[#e84040]" />
-    </div>
   );
 }

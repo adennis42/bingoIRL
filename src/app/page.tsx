@@ -10,7 +10,7 @@ const BINGO_TILES = [
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-[#111] flex flex-col items-center justify-center px-6 py-16">
+    <div className="min-h-screen flex flex-col items-center justify-center px-6 py-16" style={{ background: "#111" }}>
       {/* BINGO tiles */}
       <div className="flex items-center gap-2 mb-8">
         {BINGO_TILES.map(({ letter, bg, shadow }) => (
@@ -98,3 +98,5 @@ export default function HomePage() {
     </div>
   );
 }
+
+
