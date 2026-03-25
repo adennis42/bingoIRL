@@ -3,31 +3,31 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 font-sans font-semibold rounded-2xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none whitespace-nowrap",
+  "inline-flex items-center justify-center gap-2 font-black uppercase tracking-wide transition-all duration-75 focus-visible:outline-none disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none whitespace-nowrap border-[3px] border-[#1a1a1a] active:translate-x-[2px] active:translate-y-[2px]",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-white shadow-glow-primary hover:bg-primary/90 hover:shadow-[0_0_32px_rgba(108,99,255,0.6)] hover:-translate-y-0.5 active:translate-y-0",
+          "bg-[#f5c542] text-[#1a1a1a] [box-shadow:4px_4px_0px_#1a1a1a] hover:[box-shadow:6px_6px_0px_#1a1a1a] hover:-translate-x-[1px] hover:-translate-y-[1px] active:[box-shadow:1px_1px_0px_#1a1a1a]",
         secondary:
-          "bg-elevated border border-bg-border text-text-primary hover:border-primary/50 hover:bg-elevated/80 hover:-translate-y-0.5 active:translate-y-0",
+          "bg-[#4db8ff] text-[#1a1a1a] [box-shadow:4px_4px_0px_#1a1a1a] hover:[box-shadow:6px_6px_0px_#1a1a1a] hover:-translate-x-[1px] hover:-translate-y-[1px] active:[box-shadow:1px_1px_0px_#1a1a1a]",
         success:
-          "bg-secondary text-[#0a0a0f] shadow-glow-secondary hover:bg-secondary/90 hover:-translate-y-0.5 active:translate-y-0",
+          "bg-[#50e878] text-[#1a1a1a] [box-shadow:4px_4px_0px_#1a1a1a] hover:[box-shadow:6px_6px_0px_#1a1a1a] hover:-translate-x-[1px] hover:-translate-y-[1px] active:[box-shadow:1px_1px_0px_#1a1a1a]",
         destructive:
-          "bg-warn/15 border border-warn/40 text-warn hover:bg-warn/25 hover:-translate-y-0.5 active:translate-y-0",
+          "bg-[#e84040] text-white [box-shadow:4px_4px_0px_#1a1a1a] hover:[box-shadow:6px_6px_0px_#1a1a1a] hover:-translate-x-[1px] hover:-translate-y-[1px] active:[box-shadow:1px_1px_0px_#1a1a1a]",
         gold:
-          "bg-gold/15 border border-gold/40 text-gold hover:bg-gold/25 hover:-translate-y-0.5 active:translate-y-0",
+          "bg-[#ff6b35] text-[#1a1a1a] [box-shadow:4px_4px_0px_#1a1a1a] hover:[box-shadow:6px_6px_0px_#1a1a1a] hover:-translate-x-[1px] hover:-translate-y-[1px] active:[box-shadow:1px_1px_0px_#1a1a1a]",
         ghost:
-          "text-text-secondary hover:text-text-primary hover:bg-elevated transition-colors",
+          "border-transparent bg-transparent text-[#c8c8c8] hover:bg-white/10 hover:text-white [box-shadow:none]",
         link:
-          "text-primary underline-offset-4 hover:underline p-0 h-auto",
+          "border-transparent bg-transparent text-[#f5c542] underline-offset-4 hover:underline p-0 h-auto [box-shadow:none]",
       },
       size: {
         default: "h-11 px-6 py-2 text-sm",
-        sm: "h-9 px-4 py-1.5 text-xs rounded-xl",
+        sm: "h-9 px-4 py-1.5 text-xs",
         lg: "h-14 px-8 py-3 text-base",
         xl: "h-16 px-10 py-4 text-lg",
-        icon: "h-10 w-10 rounded-xl",
+        icon: "h-10 w-10",
       },
     },
     defaultVariants: {
