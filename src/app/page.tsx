@@ -11,7 +11,7 @@ const BINGO_TILES = [
 export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 py-16" style={{ background: "#111" }}>
-      {/* BINGO tiles */}
+      {/* BingoIRL logo — BINGO tiles + IRL tag as one unit */}
       <div className="flex items-center gap-2 mb-8">
         {BINGO_TILES.map(({ letter, bg, shadow }) => (
           <div
@@ -28,34 +28,23 @@ export default function HomePage() {
             {letter}
           </div>
         ))}
-      </div>
-
-      {/* Headline */}
-      <div className="text-center mb-3">
-        <h1
-          className="text-6xl font-black uppercase leading-none"
-          style={{
-            color: "#f5c542",
-            fontFamily: "'Arial Black', Impact, sans-serif",
-            WebkitTextStroke: "3px #111",
-            paintOrder: "stroke fill",
-            textShadow: "5px 5px 0px #111",
-          }}
-        >
-          BINGO
-        </h1>
-        <h2
-          className="text-3xl font-black uppercase tracking-widest"
-          style={{
-            color: "#fff",
-            fontFamily: "'Arial Black', Impact, sans-serif",
-            WebkitTextStroke: "2px #111",
-            paintOrder: "stroke fill",
-            textShadow: "3px 3px 0px #111",
-          }}
-        >
-          IRL
-        </h2>
+        {/* IRL tag — attached to the tile row */}
+        <div className="flex flex-col justify-end pb-1 pl-1">
+          <span
+            className="font-black uppercase leading-none"
+            style={{
+              fontFamily: "'Arial Black', Impact, sans-serif",
+              fontSize: "13px",
+              letterSpacing: "3px",
+              color: "#fff",
+              WebkitTextStroke: "1.5px #111",
+              paintOrder: "stroke fill",
+              textShadow: "2px 2px 0px #111",
+            }}
+          >
+            IRL
+          </span>
+        </div>
       </div>
 
       {/* Comic divider */}
