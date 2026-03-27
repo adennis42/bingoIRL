@@ -1,10 +1,19 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { db } from "@/lib/firebase/config";
 import { doc, onSnapshot, setDoc } from "firebase/firestore";
 
+export interface CustomSoundMeta {
+  id: string;        // e.g. "custom_1"
+  name: string;      // user-given name
+  url: string;       // Firebase Storage download URL
+  durationMs: number;
+  createdAt: number; // timestamp
+}
+
 export interface HostSettings {
-  soundboard: string[]; // array of up to 12 sound IDs
+  soundboard: string[];           // array of up to 12 sound IDs (built-in or custom)
+  customSounds?: CustomSoundMeta[]; // metadata for custom recorded sounds
 }
 
 const DEFAULT_SETTINGS: HostSettings = {
@@ -22,6 +31,7 @@ const DEFAULT_SETTINGS: HostSettings = {
     "shhhh",
     "lets_go",
   ],
+  customSounds: [],
 };
 
 export function useHostSettings(userId: string | undefined) {
@@ -46,7 +56,7 @@ export function useHostSettings(userId: string | undefined) {
   }, [userId]);
 
   const save = useCallback(
-    async (newSettings: HostSettings) => {
+    async (newSettings: Partial<HostSettings>) => {
       if (!userId) return;
       const ref = doc(db, "users", userId, "settings", "host");
       await setDoc(ref, newSettings, { merge: true });
@@ -54,5 +64,14 @@ export function useHostSettings(userId: string | undefined) {
     [userId]
   );
 
-  return { settings, loading, save };
+  // Computed map of custom sound id → Firebase Storage URL
+  const customSoundFiles = useMemo(() => {
+    const map: Record<string, string> = {};
+    settings.customSounds?.forEach((s) => {
+      map[s.id] = s.url;
+    });
+    return map;
+  }, [settings.customSounds]);
+
+  return { settings, loading, save, customSoundFiles };
 }

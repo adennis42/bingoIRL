@@ -810,9 +810,34 @@ function playMicDrop(ctx: AudioContext, t: number) {
   thudOsc.stop(thudStart + thudDur + 0.02);
 }
 
+// ── File-based playback ───────────────────────────────────────────────────────
+
+const _audioCache: Map<string, HTMLAudioElement> = new Map();
+
+export function playFile(path: string): void {
+  try {
+    let audio = _audioCache.get(path);
+    if (!audio) {
+      audio = new Audio(path);
+      _audioCache.set(path, audio);
+    }
+    audio.currentTime = 0;
+    audio.volume = 1.0;
+    audio.play().catch((err) => {
+      console.warn("[audioEngine] playFile error:", err);
+    });
+  } catch (err) {
+    console.error("[audioEngine] playFile error:", err);
+  }
+}
+
 // ── Public API ────────────────────────────────────────────────────────────────
 
-export function playSound(id: string): void {
+export function playSound(id: string, filePath?: string): void {
+  if (filePath) {
+    playFile(filePath);
+    return;
+  }
   getUnlockedCtx().then((ctx) => {
     const t = ctx.currentTime + 0.05; // small offset so notes fire after unlock
     try {

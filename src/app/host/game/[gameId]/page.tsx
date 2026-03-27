@@ -32,7 +32,7 @@ export default function HostGamePage() {
   const { game, loading: gameLoading } = useGame(gameId);
   const { calledNumbers } = useCalledNumbers(gameId);
   const { players } = usePlayers(gameId);
-  const { settings: hostSettings } = useHostSettings(user?.uid);
+  const { settings: hostSettings, customSoundFiles } = useHostSettings(user?.uid);
   const [showWinnerModal, setShowWinnerModal] = useState(false);
   const [showRoundCompleteModal, setShowRoundCompleteModal] = useState(false);
   const [showEndGameConfirm, setShowEndGameConfirm] = useState(false);
@@ -397,7 +397,7 @@ export default function HostGamePage() {
             )}
 
             {/* Soundboard */}
-            <Soundboard soundIds={hostSettings.soundboard} />
+            <Soundboard soundIds={hostSettings.soundboard} soundFiles={customSoundFiles} />
 
             {/* Round Summary */}
             {game.totalRounds > 1 && (

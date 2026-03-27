@@ -3,8 +3,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { useHostSettings } from "@/lib/hooks/useHostSettings";
+import { useHostSettings, CustomSoundMeta } from "@/lib/hooks/useHostSettings";
 import { SOUNDS, SoundDef, playSound } from "@/lib/audioEngine";
+import { RecordButton } from "@/components/host/RecordButton";
+import { RecordingResult } from "@/lib/recorder";
+import { uploadCustomSound, deleteCustomSound } from "@/lib/firebase/storage";
 import Link from "next/link";
 
 const COLOR_STYLES: Record<string, { bg: string; shadow: string; text: string }> = {
@@ -16,16 +19,28 @@ const COLOR_STYLES: Record<string, { bg: string; shadow: string; text: string }>
   purple: { bg: "linear-gradient(to bottom, #c4a0ff 0%, #9b72ff 45%, #5b2fe0 100%)", shadow: "#2e0e80", text: "#fff" },
 };
 
+const CUSTOM_PALETTE = {
+  bg: "linear-gradient(to bottom, #888 0%, #555 45%, #222 100%)",
+  shadow: "#111",
+  text: "#fff",
+};
+
 export default function HostSettingsPage() {
   const router = useRouter();
   const { user, loading: authLoading, isHost } = useAuth();
-  const { settings, loading: settingsLoading, save } = useHostSettings(user?.uid);
+  const { settings, loading: settingsLoading, save, customSoundFiles } = useHostSettings(user?.uid);
 
   const [selected, setSelected] = useState<string[]>([]);
   const [playing, setPlaying] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
+
+  // Custom sounds state
+  const [newSoundName, setNewSoundName] = useState("");
+  const [uploadingSound, setUploadingSound] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Sync local state when settings load
   useEffect(() => {
@@ -46,8 +61,8 @@ export default function HostSettingsPage() {
     );
   }
 
-  const handlePreview = (id: string) => {
-    playSound(id);
+  const handlePreview = (id: string, filePath?: string) => {
+    playSound(id, filePath);
     setPlaying(id);
     setTimeout(() => setPlaying(null), 300);
   };
@@ -55,7 +70,7 @@ export default function HostSettingsPage() {
   const toggleSound = (id: string) => {
     setSelected((prev) => {
       if (prev.includes(id)) return prev.filter((s) => s !== id);
-      if (prev.length >= 12) return prev; // max 12
+      if (prev.length >= 12) return prev;
       return [...prev, id];
     });
   };
@@ -81,6 +96,52 @@ export default function HostSettingsPage() {
     [newSel[index], newSel[target]] = [newSel[target], newSel[index]];
     setSelected(newSel);
   };
+
+  // ── Custom Sounds ────────────────────────────────────────────────────────
+
+  const handleRecorded = async (result: RecordingResult) => {
+    if (!user) return;
+    const name = newSoundName.trim() || "Custom Sound";
+    setUploadingSound(true);
+    setUploadError("");
+    try {
+      const id = `custom_${Date.now()}`;
+      const url = await uploadCustomSound(user.uid, id, result.blob, result.mimeType);
+      const meta: CustomSoundMeta = {
+        id,
+        name,
+        url,
+        durationMs: result.durationMs,
+        createdAt: Date.now(),
+      };
+      const existing = settings.customSounds ?? [];
+      await save({ customSounds: [...existing, meta] });
+      setNewSoundName("");
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploadingSound(false);
+    }
+  };
+
+  const handleDeleteCustomSound = async (soundId: string) => {
+    if (!user || deletingId) return;
+    setDeletingId(soundId);
+    try {
+      await deleteCustomSound(user.uid, soundId);
+      const remaining = (settings.customSounds ?? []).filter((s) => s.id !== soundId);
+      // Also remove from soundboard if present
+      const newSoundboard = selected.filter((s) => s !== soundId);
+      await save({ customSounds: remaining, soundboard: newSoundboard });
+      setSelected(newSoundboard);
+    } catch (err) {
+      console.error("Delete error:", err);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const customSounds = settings.customSounds ?? [];
 
   return (
     <div className="min-h-screen" style={{ background: "#111" }}>
@@ -133,16 +194,21 @@ export default function HostSettingsPage() {
               {Array.from({ length: 12 }).map((_, i) => {
                 const id = selected[i];
                 const sound = id ? SOUNDS.find((s) => s.id === id) : null;
-                const palette = sound ? COLOR_STYLES[sound.color] : null;
+                const customMeta = id ? customSounds.find((s) => s.id === id) : null;
+                const palette = sound
+                  ? COLOR_STYLES[sound.color]
+                  : customMeta
+                  ? CUSTOM_PALETTE
+                  : null;
 
                 return (
                   <div
                     key={i}
                     style={{
                       aspectRatio: "1/1",
-                      border: sound ? "3px solid #111" : "2px dashed #333",
-                      background: sound ? palette!.bg : "#1a1a1a",
-                      boxShadow: sound ? `3px 3px 0px ${palette!.shadow}` : "none",
+                      border: (sound || customMeta) ? "3px solid #111" : "2px dashed #333",
+                      background: palette ? palette.bg : "#1a1a1a",
+                      boxShadow: palette ? `3px 3px 0px ${palette.shadow}` : "none",
                       position: "relative",
                       display: "flex",
                       flexDirection: "column",
@@ -151,31 +217,24 @@ export default function HostSettingsPage() {
                       gap: "2px",
                     }}
                   >
-                    {sound ? (
+                    {(sound || customMeta) ? (
                       <>
-                        <span style={{ fontSize: "1.4rem", lineHeight: 1 }}>{sound.emoji}</span>
+                        <span style={{ fontSize: "1.4rem", lineHeight: 1 }}>
+                          {sound ? sound.emoji : "🎙"}
+                        </span>
                         <span style={{ fontSize: "6px", fontWeight: 900, textTransform: "uppercase", color: palette!.text, letterSpacing: "0.04em", textAlign: "center", padding: "0 2px" }}>
-                          {sound.label}
+                          {sound ? sound.label : customMeta!.name}
                         </span>
                         {/* Remove button */}
                         <button
                           onClick={() => toggleSound(id)}
                           style={{
-                            position: "absolute",
-                            top: "2px",
-                            right: "2px",
-                            width: "14px",
-                            height: "14px",
-                            background: "#e84040",
-                            border: "1px solid #111",
-                            color: "#fff",
-                            fontSize: "8px",
-                            fontWeight: 900,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            cursor: "pointer",
-                            lineHeight: 1,
+                            position: "absolute", top: "2px", right: "2px",
+                            width: "14px", height: "14px",
+                            background: "#e84040", border: "1px solid #111",
+                            color: "#fff", fontSize: "8px", fontWeight: 900,
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            cursor: "pointer", lineHeight: 1,
                           }}
                         >
                           ×
@@ -206,7 +265,7 @@ export default function HostSettingsPage() {
             <div className="flex-1 h-[2px] bg-[#333]" />
           </div>
 
-          {/* ALL SOUNDS library */}
+          {/* ALL SOUNDS library (stock) */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "6px" }}>
             {SOUNDS.map((sound: SoundDef) => {
               const palette = COLOR_STYLES[sound.color] ?? COLOR_STYLES.blue;
@@ -220,24 +279,18 @@ export default function HostSettingsPage() {
                   onClick={() => !isDisabled && toggleSound(sound.id)}
                   onContextMenu={(e) => { e.preventDefault(); handlePreview(sound.id); }}
                   style={{
-                    position: "relative",
-                    aspectRatio: "1/1",
+                    position: "relative", aspectRatio: "1/1",
                     border: isSelected ? "3px solid #f5c542" : "3px solid #111",
                     background: isDisabled ? "#1a1a1a" : palette.bg,
                     boxShadow: isPlaying
                       ? "1px 1px 0px #111"
-                      : isSelected
-                        ? `3px 3px 0px #8a6600`
-                        : `2px 2px 0px ${palette.shadow}`,
+                      : isSelected ? "3px 3px 0px #8a6600" : `2px 2px 0px ${palette.shadow}`,
                     transform: isPlaying ? "scale(0.95) translate(2px,2px)" : "scale(1)",
                     opacity: isDisabled ? 0.35 : 1,
                     transition: "all 80ms ease",
                     cursor: isDisabled ? "not-allowed" : "pointer",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "2px",
+                    display: "flex", flexDirection: "column",
+                    alignItems: "center", justifyContent: "center", gap: "2px",
                     WebkitTapHighlightColor: "transparent",
                   }}
                 >
@@ -256,11 +309,180 @@ export default function HostSettingsPage() {
                 </button>
               );
             })}
+
+            {/* Custom sounds in the grid */}
+            {customSounds.map((cs) => {
+              const isSelected = selected.includes(cs.id);
+              const isPlaying = playing === cs.id;
+              const isDisabled = !isSelected && selected.length >= 12;
+
+              return (
+                <button
+                  key={cs.id}
+                  onClick={() => !isDisabled && toggleSound(cs.id)}
+                  onContextMenu={(e) => { e.preventDefault(); handlePreview(cs.id, cs.url); }}
+                  style={{
+                    position: "relative", aspectRatio: "1/1",
+                    border: isSelected ? "3px solid #f5c542" : "3px solid #111",
+                    background: isDisabled ? "#1a1a1a" : CUSTOM_PALETTE.bg,
+                    boxShadow: isPlaying
+                      ? "1px 1px 0px #111"
+                      : isSelected ? "3px 3px 0px #8a6600" : `2px 2px 0px ${CUSTOM_PALETTE.shadow}`,
+                    transform: isPlaying ? "scale(0.95) translate(2px,2px)" : "scale(1)",
+                    opacity: isDisabled ? 0.35 : 1,
+                    transition: "all 80ms ease",
+                    cursor: isDisabled ? "not-allowed" : "pointer",
+                    display: "flex", flexDirection: "column",
+                    alignItems: "center", justifyContent: "center", gap: "2px",
+                    WebkitTapHighlightColor: "transparent",
+                  }}
+                >
+                  {isPlaying && (
+                    <div style={{ position: "absolute", inset: 0, background: "rgba(255,255,255,0.4)", pointerEvents: "none" }} />
+                  )}
+                  {isSelected && (
+                    <div style={{ position: "absolute", top: "2px", right: "2px", width: "12px", height: "12px", background: "#f5c542", border: "1px solid #111", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <span style={{ fontSize: "8px", fontWeight: 900, color: "#111" }}>✓</span>
+                    </div>
+                  )}
+                  <span style={{ fontSize: "1.3rem", lineHeight: 1 }}>🎙</span>
+                  <span style={{ fontSize: "6px", fontWeight: 900, textTransform: "uppercase", color: isDisabled ? "#555" : CUSTOM_PALETTE.text, letterSpacing: "0.04em", textAlign: "center", padding: "0 2px" }}>
+                    {cs.name}
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
           <p className="text-[#555] text-[10px] font-bold uppercase tracking-wider text-center">
             Tap to select · Long-press to preview
           </p>
+        </div>
+
+        {/* ── Custom Sounds Section ── */}
+        <div className="border-[3px] border-[#111] p-5 space-y-4" style={{ background: "#1a1a1a", boxShadow: "5px 5px 0px #111" }}>
+          <div>
+            <h2
+              className="font-black text-lg uppercase text-white tracking-wide"
+              style={{ fontFamily: "'Arial Black', sans-serif", textShadow: "1px 1px 0px #111" }}
+            >
+              🎙 CUSTOM SOUNDS
+            </h2>
+            <p className="text-[#555] text-xs font-bold uppercase tracking-wider mt-1">
+              Record your own sounds (max 15s each)
+            </p>
+          </div>
+
+          {/* Record new sound */}
+          <div className="space-y-2">
+            <input
+              type="text"
+              value={newSoundName}
+              onChange={(e) => setNewSoundName(e.target.value)}
+              placeholder="Sound name (e.g. MY CATCHPHRASE)"
+              maxLength={30}
+              style={{
+                width: "100%",
+                padding: "0.6rem 0.75rem",
+                background: "#111",
+                border: "3px solid #333",
+                color: "#fff",
+                fontFamily: "'Arial Black', Impact, sans-serif",
+                fontWeight: 700,
+                fontSize: "0.8rem",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                outline: "none",
+                boxSizing: "border-box",
+              }}
+            />
+            <RecordButton
+              onRecorded={handleRecorded}
+              maxSeconds={15}
+              disabled={uploadingSound}
+            />
+            {uploadingSound && (
+              <p className="text-[#f5c542] text-xs font-black uppercase tracking-widest text-center animate-pulse">
+                ⏫ Uploading...
+              </p>
+            )}
+            {uploadError && (
+              <p className="text-[#e84040] text-xs font-black uppercase">{uploadError}</p>
+            )}
+          </div>
+
+          {/* Existing custom sounds list */}
+          {customSounds.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-[#555] text-xs font-black uppercase tracking-widest">
+                Your Recordings ({customSounds.length})
+              </p>
+              {customSounds.map((cs) => (
+                <div
+                  key={cs.id}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    padding: "0.5rem 0.75rem",
+                    background: "#111",
+                    border: "2px solid #333",
+                  }}
+                >
+                  <span style={{ fontSize: "1.1rem" }}>🎙</span>
+                  <span
+                    style={{
+                      flex: 1,
+                      color: "#fff",
+                      fontFamily: "'Arial Black', sans-serif",
+                      fontWeight: 900,
+                      fontSize: "0.75rem",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.05em",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {cs.name}
+                  </span>
+                  <span style={{ color: "#555", fontSize: "0.65rem", fontWeight: 700, whiteSpace: "nowrap" }}>
+                    {Math.round(cs.durationMs / 1000)}s
+                  </span>
+                  {/* Play preview */}
+                  <button
+                    onClick={() => handlePreview(cs.id, cs.url)}
+                    style={{
+                      width: "28px", height: "28px",
+                      background: "#333", border: "2px solid #555",
+                      color: "#fff", fontSize: "0.8rem",
+                      cursor: "pointer", display: "flex",
+                      alignItems: "center", justifyContent: "center",
+                    }}
+                    title="Preview"
+                  >
+                    ▶
+                  </button>
+                  {/* Delete */}
+                  <button
+                    onClick={() => handleDeleteCustomSound(cs.id)}
+                    disabled={deletingId === cs.id}
+                    style={{
+                      width: "28px", height: "28px",
+                      background: "#e84040", border: "2px solid #111",
+                      color: "#fff", fontSize: "0.8rem", fontWeight: 900,
+                      cursor: deletingId === cs.id ? "not-allowed" : "pointer",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      opacity: deletingId === cs.id ? 0.5 : 1,
+                    }}
+                    title="Delete"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Error */}

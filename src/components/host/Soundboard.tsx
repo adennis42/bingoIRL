@@ -41,10 +41,11 @@ const COLOR_STYLES: Record<
 };
 
 interface SoundboardProps {
-  soundIds?: string[]; // if provided, show only these sounds in this order
+  soundIds?: string[];                   // if provided, show only these sounds in this order
+  soundFiles?: Record<string, string>;   // soundId → URL (Firebase Storage or /sounds/ path)
 }
 
-export function Soundboard({ soundIds }: SoundboardProps) {
+export function Soundboard({ soundIds, soundFiles }: SoundboardProps) {
   const [playing, setPlaying] = useState<string | null>(null);
 
   const activeSounds: SoundDef[] = soundIds
@@ -54,7 +55,7 @@ export function Soundboard({ soundIds }: SoundboardProps) {
     : SOUNDS.slice(0, 12);
 
   const handlePlay = (id: string) => {
-    playSound(id);
+    playSound(id, soundFiles?.[id]);
     setPlaying(id);
     setTimeout(() => setPlaying(null), 300);
   };
