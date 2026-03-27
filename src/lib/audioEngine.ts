@@ -49,9 +49,6 @@ function getCtx(): AudioContext {
   if (!_ctx) {
     _ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
   }
-  if (_ctx.state === "suspended") {
-    _ctx.resume();
-  }
   return _ctx;
 }
 
@@ -798,7 +795,10 @@ function playMicDrop(ctx: AudioContext, t: number) {
 export function playSound(id: string): void {
   try {
     const ctx = getCtx();
-    const t = ctx.currentTime;
+    // Always resume — required on iOS and after page load in most browsers
+    // Schedule the sound after resume resolves
+    const doPlay = (ctx: AudioContext) => {
+      const t = ctx.currentTime + 0.05; // small offset so notes fire after resume
 
     switch (id) {
       case "drum_roll":    playDrumRoll(ctx, t);    break;
@@ -833,6 +833,13 @@ export function playSound(id: string): void {
       case "mic_drop":     playMicDrop(ctx, t);     break;
       default:
         console.warn(`[audioEngine] Unknown sound: ${id}`);
+    }
+  };
+
+    if (ctx.state === "suspended") {
+      ctx.resume().then(() => doPlay(ctx)).catch(console.error);
+    } else {
+      doPlay(ctx);
     }
   } catch (err) {
     console.error("[audioEngine] playSound error:", err);
