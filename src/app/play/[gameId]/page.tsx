@@ -64,22 +64,39 @@ export default function PlayerGamePage() {
   return (
     <div className="min-h-screen bg-base flex flex-col">
       {/* ── Status bar ── */}
-      <div className="flex items-center justify-between px-4 pt-4 pb-2 shrink-0">
+      <div className="flex items-center justify-between px-4 pt-4 pb-2 shrink-0 border-b-[2px] border-[#222]">
+        {/* Status indicator */}
         <div className="flex items-center gap-2">
           <span
-            className="w-2 h-2 rounded-full"
+            className="w-2 h-2"
             style={{
-              backgroundColor: game.status === "active"
-                ? "var(--accent-secondary)"
-                : "var(--text-disabled)",
-              animation: game.status === "active" ? "glowPulse 2s ease-in-out infinite" : "none",
+              background: game.status === "active" ? "#50e878" : game.status === "ended" ? "#e84040" : "#f5c542",
+              boxShadow: game.status === "active" ? "0 0 6px #50e878" : "none",
             }}
           />
-          <span className="text-text-disabled text-xs font-mono uppercase tracking-widest">
+          <span className="text-[#555] text-xs font-black uppercase tracking-widest">
             {game.status === "active" ? "Live" : game.status === "ended" ? "Ended" : "Waiting"}
           </span>
         </div>
-        <span className="text-text-disabled text-xs font-mono">
+
+        {/* Game code — always visible on player screen */}
+        <div
+          className="flex items-center gap-2 px-3 py-1 border-[2px] border-[#111]"
+          style={{
+            background: "linear-gradient(to bottom, #ffe066 0%, #f5c542 45%, #c49200 100%)",
+            boxShadow: "2px 2px 0px #111, inset 0 1px 0 rgba(255,255,255,0.4)",
+          }}
+        >
+          <span className="text-[10px] font-black uppercase text-[#111] tracking-wider">Code</span>
+          <span
+            className="font-black text-sm tracking-[0.2em] text-[#111]"
+            style={{ fontFamily: "'Arial Black', Impact, monospace" }}
+          >
+            {game.gameCode}
+          </span>
+        </div>
+
+        <span className="text-[#555] text-xs font-black uppercase">
           {calledNumbers.length} called
         </span>
       </div>

@@ -16,6 +16,7 @@ import { RoundCompleteModal } from "@/components/host/RoundCompleteModal";
 import { ConfirmModal } from "@/components/shared/ConfirmModal";
 import { BackButton } from "@/components/shared/BackButton";
 import { GameLobby } from "@/components/host/GameLobby";
+import { QRModal } from "@/components/host/QRModal";
 import Link from "next/link";
 import type { BingoColumn } from "@/types";
 
@@ -44,6 +45,7 @@ export default function HostGamePage() {
   const [gameError, setGameError] = useState("");
   const [codeCopied, setCodeCopied] = useState(false);
   const [undoing, setUndoing] = useState(false);
+  const [showQRModal, setShowQRModal] = useState(false);
 
   const handleUndoLastCall = async () => {
     if (!calledNumbers.length || undoing) return;
@@ -303,12 +305,20 @@ export default function HostGamePage() {
                 >
                   {game.gameCode}
                 </div>
-                <button
-                  onClick={copyCode}
-                  className="shrink-0 px-3 py-2 rounded-xl bg-elevated border border-bg-border text-xs font-semibold text-text-secondary hover:text-text-primary hover:border-primary/40 transition-all"
-                >
-                  {codeCopied ? "✓ Copied" : "Copy"}
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={copyCode}
+                    className="shrink-0 px-3 py-2 rounded-xl bg-elevated border border-bg-border text-xs font-semibold text-text-secondary hover:text-text-primary hover:border-primary/40 transition-all"
+                  >
+                    {codeCopied ? "✓ Copied" : "Copy"}
+                  </button>
+                  <button
+                    onClick={() => setShowQRModal(true)}
+                    className="shrink-0 px-3 py-2 rounded-xl bg-elevated border border-bg-border text-xs font-semibold text-text-secondary hover:text-text-primary hover:border-primary/40 transition-all"
+                  >
+                    📱 QR
+                  </button>
+                </div>
               </div>
               <p className="text-text-disabled text-xs mt-1">Players enter this code to join</p>
             </div>
@@ -579,6 +589,14 @@ export default function HostGamePage() {
         variant="destructive"
         loading={endingGame}
       />
+
+      {showQRModal && (
+        <QRModal
+          gameCode={game.gameCode}
+          joinUrl={`${typeof window !== "undefined" ? window.location.origin : ""}/play?code=${game.gameCode}`}
+          onClose={() => setShowQRModal(false)}
+        />
+      )}
     </div>
   );
 }
