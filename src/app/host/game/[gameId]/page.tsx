@@ -18,6 +18,7 @@ import { BackButton } from "@/components/shared/BackButton";
 import { GameLobby } from "@/components/host/GameLobby";
 import { QRModal } from "@/components/host/QRModal";
 import { Soundboard } from "@/components/host/Soundboard";
+import { useHostSettings } from "@/lib/hooks/useHostSettings";
 import Link from "next/link";
 import type { BingoColumn } from "@/types";
 
@@ -31,6 +32,7 @@ export default function HostGamePage() {
   const { game, loading: gameLoading } = useGame(gameId);
   const { calledNumbers } = useCalledNumbers(gameId);
   const { players } = usePlayers(gameId);
+  const { settings: hostSettings } = useHostSettings(user?.uid);
   const [showWinnerModal, setShowWinnerModal] = useState(false);
   const [showRoundCompleteModal, setShowRoundCompleteModal] = useState(false);
   const [showEndGameConfirm, setShowEndGameConfirm] = useState(false);
@@ -395,7 +397,7 @@ export default function HostGamePage() {
             )}
 
             {/* Soundboard */}
-            <Soundboard />
+            <Soundboard soundIds={hostSettings.soundboard} />
 
             {/* Round Summary */}
             {game.totalRounds > 1 && (

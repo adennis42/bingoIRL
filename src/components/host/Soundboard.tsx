@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { SOUNDS, playSound } from "@/lib/audioEngine";
+import { SOUNDS, SoundDef, playSound } from "@/lib/audioEngine";
 
 // Cel-shaded color palette
 const COLOR_STYLES: Record<
@@ -40,8 +40,18 @@ const COLOR_STYLES: Record<
   },
 };
 
-export function Soundboard() {
+interface SoundboardProps {
+  soundIds?: string[]; // if provided, show only these sounds in this order
+}
+
+export function Soundboard({ soundIds }: SoundboardProps) {
   const [playing, setPlaying] = useState<string | null>(null);
+
+  const activeSounds: SoundDef[] = soundIds
+    ? (soundIds
+        .map((id) => SOUNDS.find((s) => s.id === id))
+        .filter(Boolean) as SoundDef[])
+    : SOUNDS.slice(0, 12);
 
   const handlePlay = (id: string) => {
     playSound(id);
@@ -74,7 +84,7 @@ export function Soundboard() {
           gap: "6px",
         }}
       >
-        {SOUNDS.map((sound) => {
+        {activeSounds.map((sound) => {
           const palette = COLOR_STYLES[sound.color] ?? COLOR_STYLES.blue;
           const isPlaying = playing === sound.id;
 
