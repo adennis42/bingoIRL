@@ -46,6 +46,21 @@ export default function HostGamePage() {
   const [codeCopied, setCodeCopied] = useState(false);
   const [undoing, setUndoing] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => {});
+    } else {
+      document.exitFullscreen().then(() => setIsFullscreen(false)).catch(() => {});
+    }
+  };
+
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", handler);
+    return () => document.removeEventListener("fullscreenchange", handler);
+  }, []);
 
   const handleUndoLastCall = async () => {
     if (!calledNumbers.length || undoing) return;
@@ -279,6 +294,17 @@ export default function HostGamePage() {
             <span className="text-text-disabled text-xs font-mono uppercase tracking-widest">
               {game.status === "active" ? "🟢 Live" : "🔴 Ended"}
             </span>
+            <button
+              onClick={toggleFullscreen}
+              className="px-3 py-2 border-[2px] border-[#111] font-black text-xs uppercase text-[#111] transition-all active:translate-x-[1px] active:translate-y-[1px]"
+              style={{
+                background: "linear-gradient(to bottom, #ffe066 0%, #f5c542 45%, #c49200 100%)",
+                boxShadow: "3px 3px 0px #111, inset 0 1px 0 rgba(255,255,255,0.4)",
+              }}
+              title={isFullscreen ? "Exit Fullscreen" : "Go Fullscreen"}
+            >
+              {isFullscreen ? "⛶ EXIT" : "⛶ FULLSCREEN"}
+            </button>
           </div>
         </div>
 
