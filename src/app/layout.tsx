@@ -22,16 +22,16 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BingoTap",
+  title: "BingoIRL",
   description: "Real-time bingo hosting for live events",
   icons: {
     icon: "/favicon.svg",
     apple: "/favicon.svg",
   },
   openGraph: {
-    title: "BingoTap",
+    title: "BingoIRL",
     description: "Real-time bingo hosting for live events",
-    siteName: "BingoTap",
+    siteName: "BingoIRL",
   },
 };
 

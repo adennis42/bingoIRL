@@ -1,4 +1,4 @@
-# BingoTap
+# BingoIRL
 
 Real-time bingo hosting for live events. Built with Next.js 14, TypeScript, Firebase, and Tailwind CSS.
 
@@ -9,7 +9,7 @@ Real-time bingo hosting for live events. Built with Next.js 14, TypeScript, Fire
 - **Game Codes** — 6-digit codes + QR for easy joining
 - **Multiple Rounds** — configure up to 10 rounds with different patterns
 - **Custom Patterns** — draw your own bingo patterns
-- **Soundboard** — 30 synthesized sounds + custom MP3 support + mic recording
+- **Soundboard** — 30 sounds + custom MP3 support + mic recording
 - **Host Settings** — persistent soundboard config saved to your account
 - **Borderlands-style UI** — cel-shaded, mobile-first dark theme
 
@@ -23,4 +23,4 @@ Real-time bingo hosting for live events. Built with Next.js 14, TypeScript, Fire
 
 ## Domain
 
-[bingotap.com](https://bingotap.com)
+[bingoirl.app](https://bingoirl.app)
