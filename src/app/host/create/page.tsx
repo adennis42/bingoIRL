@@ -45,6 +45,21 @@ export default function CreateGamePage() {
     setError("");
     try {
       const gameCode = generateGameCode();
+
+      // Embed pattern name + cells into each round so players can read them
+      // without needing access to the host's customPatterns subcollection
+      const enrichedRounds = rounds.slice(0, totalRounds).map((round) => {
+        const builtIn = PATTERN_DEFINITIONS[round.pattern as keyof typeof PATTERN_DEFINITIONS];
+        if (builtIn) {
+          return { ...round, patternName: builtIn.name };
+        }
+        const custom = customPatterns.find((p) => p.id === round.pattern);
+        if (custom) {
+          return { ...round, patternName: custom.name, patternCells: custom.cells };
+        }
+        return round;
+      });
+
       const gameId = await createGame({
         hostId: user.uid,
         gameCode,
@@ -52,7 +67,7 @@ export default function CreateGamePage() {
         createdAt: new Date(),
         currentRound: 1,
         totalRounds,
-        rounds: rounds.slice(0, totalRounds),
+        rounds: enrichedRounds,
       });
       router.push(`/host/game/${gameId}`);
     } catch (err: unknown) {

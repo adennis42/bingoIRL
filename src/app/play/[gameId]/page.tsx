@@ -3,7 +3,6 @@
 import { useParams } from "next/navigation";
 import { useGame } from "@/lib/hooks/useGame";
 import { useCalledNumbers } from "@/lib/hooks/useCalledNumbers";
-import { useCustomPatterns } from "@/lib/hooks/useCustomPatterns";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { BingoBall } from "@/components/bingo/BingoBall";
 import { PatternVisualizer } from "@/components/bingo/PatternVisualizer";
@@ -16,8 +15,6 @@ export default function PlayerGamePage() {
   const gameId = params.gameId as string;
   const { game, loading: gameLoading } = useGame(gameId);
   const { calledNumbers, loading: numbersLoading } = useCalledNumbers(gameId);
-  // Fetch host's custom patterns so we can resolve pattern IDs → names + cells
-  const { patterns: customPatterns } = useCustomPatterns(game?.hostId);
 
   if (gameLoading || numbersLoading) {
     return (
@@ -43,23 +40,32 @@ export default function PlayerGamePage() {
   const previousNumbers = calledNumbers.slice(1);
   const currentRound = game.rounds[game.currentRound - 1];
 
-  // Resolve pattern: built-in string | CustomPattern object | fallback
-  const resolvePattern = (patternId: string): { name: string; pattern: string | CustomPattern } => {
-    // Check built-in patterns first
-    const builtIn = PATTERN_DEFINITIONS[patternId];
-    if (builtIn) return { name: builtIn.name, pattern: patternId };
+  // Resolve pattern using embedded data on the round (no cross-user Firestore reads needed)
+  const resolvePattern = (): { name: string; pattern: string | CustomPattern } => {
+    if (!currentRound) return { name: "", pattern: "" };
 
-    // Check host's custom patterns
-    const custom = customPatterns.find((p) => p.id === patternId);
-    if (custom) return { name: custom.name, pattern: custom };
+    // Use embedded patternName if available
+    const name = currentRound.patternName
+      || PATTERN_DEFINITIONS[currentRound.pattern]?.name
+      || currentRound.pattern.replace(/_/g, " ");
 
-    // Fallback — pattern not found yet (still loading or unknown)
-    return { name: patternId.replace(/_/g, " "), pattern: patternId };
+    // If embedded cells exist, build a CustomPattern-like object for PatternVisualizer
+    if (currentRound.patternCells) {
+      const syntheticPattern: CustomPattern = {
+        id: currentRound.pattern,
+        userId: "",
+        name,
+        cells: currentRound.patternCells,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      return { name, pattern: syntheticPattern };
+    }
+
+    return { name, pattern: currentRound.pattern };
   };
 
-  const { name: patternName, pattern: resolvedPattern } = currentRound
-    ? resolvePattern(currentRound.pattern)
-    : { name: "", pattern: "" };
+  const { name: patternName, pattern: resolvedPattern } = resolvePattern();
 
   return (
     <div className="min-h-screen bg-base flex flex-col">

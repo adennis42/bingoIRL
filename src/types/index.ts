@@ -5,6 +5,8 @@ export type BingoColumn = "B" | "I" | "N" | "G" | "O";
 export interface Round {
   roundNumber: number;
   pattern: WinningPattern;
+  patternName?: string;       // embedded at game creation so players can read it
+  patternCells?: number[][];  // embedded custom pattern cells (if custom pattern)
   prize?: string;
   winnerId?: string;
   winnerName?: string;
