@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Ball shadow -->
+  <ellipse cx="32" cy="58" rx="14" ry="4" fill="rgba(0,0,0,0.25)"/>
+  <!-- Ball gradient sphere -->
+  <defs>
+    <radialGradient id="ball" cx="38%" cy="32%" r="65%">
+      <stop offset="0%" stop-color="#ffe066"/>
+      <stop offset="45%" stop-color="#f5c542"/>
+      <stop offset="100%" stop-color="#8a6000"/>
+    </radialGradient>
+    <radialGradient id="shine" cx="40%" cy="28%" r="40%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.7)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+    </radialGradient>
+  </defs>
+  <!-- Main ball -->
+  <circle cx="32" cy="32" r="28" fill="url(#ball)" stroke="#111" stroke-width="3"/>
+  <!-- White stripe band -->
+  <path d="M7 26 Q32 20 57 26 L57 38 Q32 44 7 38 Z" fill="white" opacity="0.9"/>
+  <!-- Letter B on white band -->
+  <text x="32" y="37" text-anchor="middle" font-family="Arial Black, Impact, sans-serif" font-size="16" font-weight="900" fill="#111" letter-spacing="-1">B</text>
+  <!-- Shine overlay -->
+  <circle cx="32" cy="32" r="28" fill="url(#shine)"/>
+  <!-- Outer border -->
+  <circle cx="32" cy="32" r="28" fill="none" stroke="#111" stroke-width="3"/>
+</svg>

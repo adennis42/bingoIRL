@@ -22,8 +22,17 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Bingo Live",
-  description: "Real-time bingo hosting for live venues",
+  title: "BingoIRL",
+  description: "Real-time bingo hosting for live events",
+  icons: {
+    icon: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
+  openGraph: {
+    title: "BingoIRL",
+    description: "Real-time bingo hosting for live events",
+    siteName: "BingoIRL",
+  },
 };
 
 export default function RootLayout({
