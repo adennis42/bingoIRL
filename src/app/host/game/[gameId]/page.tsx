@@ -17,6 +17,7 @@ import { ConfirmModal } from "@/components/shared/ConfirmModal";
 import { BackButton } from "@/components/shared/BackButton";
 import { GameLobby } from "@/components/host/GameLobby";
 import { QRModal } from "@/components/host/QRModal";
+import { Soundboard } from "@/components/host/Soundboard";
 import Link from "next/link";
 import type { BingoColumn } from "@/types";
 
@@ -392,6 +393,9 @@ export default function HostGamePage() {
                 )}
               </div>
             )}
+
+            {/* Soundboard */}
+            <Soundboard />
 
             {/* Round Summary */}
             {game.totalRounds > 1 && (
