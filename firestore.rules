@@ -75,6 +75,12 @@ service cloud.firestore {
         allow read, create, update, delete: if isAuthenticated() &&
           request.auth.uid == userId;
       }
+
+      // Host settings subcollection
+      match /settings/{settingId} {
+        allow read, create, update, delete: if isAuthenticated() &&
+          request.auth.uid == userId;
+      }
     }
   }
 }

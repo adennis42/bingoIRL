@@ -24,6 +24,8 @@ export default function HostSettingsPage() {
   const [selected, setSelected] = useState<string[]>([]);
   const [playing, setPlaying] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   // Sync local state when settings load
   useEffect(() => {
@@ -59,9 +61,17 @@ export default function HostSettingsPage() {
   };
 
   const handleSave = async () => {
-    await save({ soundboard: selected });
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    setSaving(true);
+    setSaveError("");
+    try {
+      await save({ soundboard: selected });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : "Failed to save");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const moveSlot = (index: number, direction: -1 | 1) => {
@@ -253,10 +263,19 @@ export default function HostSettingsPage() {
           </p>
         </div>
 
+        {/* Error */}
+        {saveError && (
+          <div className="p-3 border-[3px] border-[#e84040] text-[#ff8080] text-sm font-black uppercase"
+            style={{ background: "#e8404022", boxShadow: "3px 3px 0px #111" }}>
+            ⚠ {saveError}
+          </div>
+        )}
+
         {/* Save button */}
         <button
           onClick={handleSave}
-          className="w-full py-4 font-black uppercase text-lg text-[#111] border-[3px] border-[#111] transition-all active:translate-x-[2px] active:translate-y-[2px]"
+          disabled={saving}
+          className="w-full py-4 font-black uppercase text-lg text-[#111] border-[3px] border-[#111] transition-all active:translate-x-[2px] active:translate-y-[2px] disabled:opacity-60"
           style={{
             background: saved
               ? "linear-gradient(to bottom, #80ffaa 0%, #50e878 45%, #1a9933 100%)"
@@ -265,7 +284,7 @@ export default function HostSettingsPage() {
             fontFamily: "'Arial Black', Impact, sans-serif",
           }}
         >
-          {saved ? "✓ SAVED!" : "SAVE SETTINGS"}
+          {saving ? "SAVING..." : saved ? "✓ SAVED!" : "SAVE SETTINGS"}
         </button>
       </div>
     </div>
