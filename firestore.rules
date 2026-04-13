@@ -56,6 +56,30 @@ service cloud.firestore {
       }
     }
     
+    // Overall leaderboard (all authenticated users can read, hosts can write)
+    match /leaderboard_overall/{entryId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    // Seasons collection
+    match /seasons/{seasonId} {
+      // Anyone authenticated can read seasons
+      allow read: if isAuthenticated();
+
+      // Only the host who owns the season can create/update/delete
+      allow create: if isAuthenticated() &&
+                     request.resource.data.hostId == request.auth.uid;
+      allow update, delete: if isAuthenticated() &&
+                     resource.data.hostId == request.auth.uid;
+
+      // Seasonal leaderboard entries subcollection
+      match /entries/{entryId} {
+        allow read: if isAuthenticated();
+        allow write: if isAuthenticated();
+      }
+    }
+
     // Users collection (hosts only)
     match /users/{userId} {
       // Allow users to read their own data
