@@ -22,6 +22,36 @@ export interface Game {
   currentRound: number;
   totalRounds: number;
   rounds: Round[];
+  location?: string; // venue/location entered by host at game setup
+}
+
+// ─── Leaderboard ───────────────────────────────────────────────────────────
+
+export interface LeaderboardEntry {
+  id: string;           // playerName (slugified) or auto-id
+  playerName: string;
+  location: string;
+  totalWins: number;
+  lastWin: Date;
+  lastGameId?: string;
+}
+
+export interface Season {
+  id: string;
+  name: string;         // e.g. "Spring 2026"
+  startDate: Date;
+  endDate?: Date;
+  active: boolean;
+  hostId: string;       // the host who owns/manages this season
+}
+
+export interface SeasonalEntry {
+  id: string;           // playerName (slugified) or auto-id
+  playerName: string;
+  location: string;
+  wins: number;
+  lastWin: Date;
+  lastGameId?: string;
 }
 
 export interface CalledNumber {

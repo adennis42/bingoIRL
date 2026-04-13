@@ -56,9 +56,10 @@ export default function HostDashboardPage() {
         </div>
 
         {/* Quick actions */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           {[
             { href: "/host/create", icon: "🎙️", label: "New Game", sub: "Start hosting" },
+            { href: "/host/leaderboard", icon: "🏆", label: "Leaderboard", sub: "Winners & seasons" },
             { href: "/host/patterns", icon: "🎨", label: "Patterns", sub: "Custom designs" },
             { href: "/host/settings", icon: "⚙️", label: "Settings", sub: "Sounds & prefs" },
           ].map(({ href, icon, label, sub }) => (

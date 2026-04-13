@@ -9,7 +9,7 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { getAllNumbers, getColumnColor, getActualNumber, formatNumber } from "@/lib/utils/bingo";
 import { BingoBall } from "@/components/bingo/BingoBall";
-import { addCalledNumber, updateGame, removeCalledNumber, clearCalledNumbers } from "@/lib/firebase/firestore";
+import { addCalledNumber, updateGame, removeCalledNumber, clearCalledNumbers, recordOverallWin, recordSeasonalWin, getActiveSeason } from "@/lib/firebase/firestore";
 import { Button } from "@/components/ui/button";
 import { WinnerModal } from "@/components/host/WinnerModal";
 import { RoundCompleteModal } from "@/components/host/RoundCompleteModal";
@@ -147,20 +147,31 @@ export default function HostGamePage() {
       };
 
       if (isLastRound) {
-        // End the game
         updates.status = "ended";
       } else {
-        // Advance to next round
         updates.currentRound = game.currentRound + 1;
         updates.status = "active";
       }
 
       await updateGame(gameId, updates);
-      // Clear called numbers so the next round starts fresh
       await clearCalledNumbers(gameId);
+
+      // Record win to leaderboard (fire-and-forget, don't block UI)
+      const location = game.location || "Unknown";
+      recordOverallWin({ playerName: winnerName, location, gameId }).catch((err) =>
+        console.warn("Failed to record overall win:", err)
+      );
+      // Record to active season if one exists
+      getActiveSeason(game.hostId).then((season) => {
+        if (season) {
+          recordSeasonalWin({ seasonId: season.id, playerName: winnerName, location, gameId }).catch(
+            (err) => console.warn("Failed to record seasonal win:", err)
+          );
+        }
+      }).catch((err) => console.warn("Failed to get active season:", err));
+
       setShowWinnerModal(false);
 
-      // Show round completion modal
       setCompletedRoundInfo({
         roundNumber: game.currentRound,
         winnerName,

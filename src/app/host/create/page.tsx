@@ -26,6 +26,7 @@ export default function CreateGamePage() {
   const { patterns: customPatterns } = useCustomPatterns(user?.uid);
   const [totalRounds, setTotalRounds] = useState(1);
   const [rounds, setRounds] = useState<Round[]>([{ roundNumber: 1, pattern: "traditional_line" }]);
+  const [location, setLocation] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -68,6 +69,7 @@ export default function CreateGamePage() {
         currentRound: 1,
         totalRounds,
         rounds: enrichedRounds,
+        location: location.trim() || undefined,
       });
       router.push(`/host/game/${gameId}`);
     } catch (err: unknown) {
@@ -104,6 +106,24 @@ export default function CreateGamePage() {
             ⚠ {error}
           </div>
         )}
+
+        {/* Location */}
+        <div
+          className="border-[3px] border-[#111] p-5 space-y-3"
+          style={{ background: "#1a1a1a", boxShadow: "5px 5px 0px #111" }}
+        >
+          <label className="text-xs font-black uppercase tracking-widest text-[#f5c542]">
+            Venue / Location <span className="text-[#555] normal-case font-bold">(optional)</span>
+          </label>
+          <Input
+            placeholder="e.g. The Rusty Anchor, Bay Shore"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+          />
+          <p className="text-[10px] text-[#555] font-bold uppercase tracking-wider">
+            Used for leaderboard tracking — winners are shown with this location
+          </p>
+        </div>
 
         {/* Round count stepper */}
         <div

@@ -4,7 +4,7 @@ import {
   SnapshotOptions,
   Timestamp,
 } from "firebase/firestore";
-import type { Game, CalledNumber, Player, Round, CustomPattern } from "@/types";
+import type { Game, CalledNumber, Player, Round, CustomPattern, LeaderboardEntry, Season, SeasonalEntry } from "@/types";
 
 export const gameConverter = {
   toFirestore(game: Game): DocumentData {
@@ -15,6 +15,7 @@ export const gameConverter = {
       createdAt: Timestamp.fromDate(game.createdAt),
       currentRound: game.currentRound,
       totalRounds: game.totalRounds,
+      location: game.location || null,
       rounds: game.rounds.map((round) => ({
         roundNumber: round.roundNumber,
         pattern: round.pattern,
@@ -40,6 +41,7 @@ export const gameConverter = {
       createdAt: data.createdAt.toDate(),
       currentRound: data.currentRound,
       totalRounds: data.totalRounds,
+      location: data.location || undefined,
       rounds: data.rounds.map((round: any) => ({
         roundNumber: round.roundNumber,
         pattern: round.pattern,
@@ -48,6 +50,84 @@ export const gameConverter = {
         winnerName: round.winnerName || undefined,
         completedAt: round.completedAt?.toDate(),
       })),
+    };
+  },
+};
+
+export const leaderboardEntryConverter = {
+  toFirestore(entry: LeaderboardEntry): DocumentData {
+    return {
+      playerName: entry.playerName,
+      location: entry.location,
+      totalWins: entry.totalWins,
+      lastWin: Timestamp.fromDate(entry.lastWin),
+      lastGameId: entry.lastGameId || null,
+    };
+  },
+  fromFirestore(
+    snapshot: QueryDocumentSnapshot,
+    options: SnapshotOptions
+  ): LeaderboardEntry {
+    const data = snapshot.data(options);
+    return {
+      id: snapshot.id,
+      playerName: data.playerName,
+      location: data.location,
+      totalWins: data.totalWins,
+      lastWin: data.lastWin.toDate(),
+      lastGameId: data.lastGameId || undefined,
+    };
+  },
+};
+
+export const seasonConverter = {
+  toFirestore(season: Season): DocumentData {
+    return {
+      name: season.name,
+      startDate: Timestamp.fromDate(season.startDate),
+      endDate: season.endDate ? Timestamp.fromDate(season.endDate) : null,
+      active: season.active,
+      hostId: season.hostId,
+    };
+  },
+  fromFirestore(
+    snapshot: QueryDocumentSnapshot,
+    options: SnapshotOptions
+  ): Season {
+    const data = snapshot.data(options);
+    return {
+      id: snapshot.id,
+      name: data.name,
+      startDate: data.startDate.toDate(),
+      endDate: data.endDate?.toDate(),
+      active: data.active,
+      hostId: data.hostId,
+    };
+  },
+};
+
+export const seasonalEntryConverter = {
+  toFirestore(entry: SeasonalEntry): DocumentData {
+    return {
+      playerName: entry.playerName,
+      location: entry.location,
+      wins: entry.wins,
+      lastWin: Timestamp.fromDate(entry.lastWin),
+      lastGameId: entry.lastGameId || null,
+    };
+  },
+  fromFirestore(
+    snapshot: QueryDocumentSnapshot,
+    options: SnapshotOptions
+  ): SeasonalEntry {
+    const data = snapshot.data(options);
+    return {
+      id: snapshot.id,
+      playerName: data.playerName,
+      location: data.location,
+      wins: data.wins,
+      lastWin: data.lastWin.toDate(),
+      lastGameId: data.lastGameId || undefined,
     };
   },
 };

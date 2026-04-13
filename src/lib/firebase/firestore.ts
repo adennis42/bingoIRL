@@ -13,6 +13,7 @@ import {
   writeBatch,
   onSnapshot,
   Timestamp,
+  increment,
   QueryConstraint,
   FirestoreError,
 } from "firebase/firestore";
@@ -23,8 +24,11 @@ import {
   calledNumberConverter,
   playerConverter,
   customPatternConverter,
+  leaderboardEntryConverter,
+  seasonConverter,
+  seasonalEntryConverter,
 } from "./converters";
-import type { Game, CalledNumber, Player, CustomPattern } from "@/types";
+import type { Game, CalledNumber, Player, CustomPattern, LeaderboardEntry, Season, SeasonalEntry } from "@/types";
 
 // Games
 export async function getGame(gameId: string): Promise<Game | null> {
@@ -326,5 +330,173 @@ export function subscribeToCustomPatterns(
   const q = query(patternsRef, orderBy("createdAt", "desc"));
   return onSnapshot(q, (snapshot) => {
     callback(snapshot.docs.map((doc) => doc.data()));
+  });
+}
+
+// ─── Leaderboard ───────────────────────────────────────────────────────────
+
+/**
+ * Slugify a player name for use as a Firestore doc ID.
+ * e.g. "John Doe" -> "john-doe"
+ */
+function slugifyName(name: string): string {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+/**
+ * Record a win to the overall leaderboard (upsert by slugified player name).
+ * If the player already exists, increments totalWins and updates lastWin/location.
+ */
+export async function recordOverallWin({
+  playerName,
+  location,
+  gameId,
+}: {
+  playerName: string;
+  location: string;
+  gameId: string;
+}): Promise<void> {
+  const entryId = slugifyName(playerName);
+  const ref = doc(db, "leaderboard_overall", entryId).withConverter(leaderboardEntryConverter);
+  const snapshot = await getDoc(ref);
+  const now = new Date();
+  if (snapshot.exists()) {
+    await updateDoc(ref, {
+      totalWins: increment(1),
+      lastWin: Timestamp.fromDate(now),
+      lastGameId: gameId,
+      location, // update to latest location
+    });
+  } else {
+    await setDoc(ref, {
+      id: entryId,
+      playerName,
+      location,
+      totalWins: 1,
+      lastWin: now,
+      lastGameId: gameId,
+    });
+  }
+}
+
+/**
+ * Record a win to a seasonal leaderboard entry.
+ * Seasonal entries are stored at /seasons/{seasonId}/entries/{slugifiedName}.
+ */
+export async function recordSeasonalWin({
+  seasonId,
+  playerName,
+  location,
+  gameId,
+}: {
+  seasonId: string;
+  playerName: string;
+  location: string;
+  gameId: string;
+}): Promise<void> {
+  const entryId = slugifyName(playerName);
+  const ref = doc(db, "seasons", seasonId, "entries", entryId).withConverter(seasonalEntryConverter);
+  const snapshot = await getDoc(ref);
+  const now = new Date();
+  if (snapshot.exists()) {
+    await updateDoc(ref, {
+      wins: increment(1),
+      lastWin: Timestamp.fromDate(now),
+      lastGameId: gameId,
+      location,
+    });
+  } else {
+    await setDoc(ref, {
+      id: entryId,
+      playerName,
+      location,
+      wins: 1,
+      lastWin: now,
+      lastGameId: gameId,
+    });
+  }
+}
+
+/** Fetch overall leaderboard, sorted by totalWins desc. */
+export async function getOverallLeaderboard(): Promise<LeaderboardEntry[]> {
+  const ref = collection(db, "leaderboard_overall").withConverter(leaderboardEntryConverter);
+  const q = query(ref, orderBy("totalWins", "desc"));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => d.data());
+}
+
+/** Subscribe to overall leaderboard (live updates). */
+export function subscribeToOverallLeaderboard(
+  callback: (entries: LeaderboardEntry[]) => void
+): () => void {
+  const ref = collection(db, "leaderboard_overall").withConverter(leaderboardEntryConverter);
+  const q = query(ref, orderBy("totalWins", "desc"));
+  return onSnapshot(q, (snapshot) => {
+    callback(snapshot.docs.map((d) => d.data()));
+  });
+}
+
+/** Subscribe to seasonal leaderboard entries for a given season. */
+export function subscribeToSeasonalLeaderboard(
+  seasonId: string,
+  callback: (entries: SeasonalEntry[]) => void
+): () => void {
+  const ref = collection(db, "seasons", seasonId, "entries").withConverter(seasonalEntryConverter);
+  const q = query(ref, orderBy("wins", "desc"));
+  return onSnapshot(q, (snapshot) => {
+    callback(snapshot.docs.map((d) => d.data()));
+  });
+}
+
+// ─── Seasons ────────────────────────────────────────────────────────────
+
+/** Create a new season. Only one active season should exist per host at a time. */
+export async function createSeason(
+  season: Omit<Season, "id">
+): Promise<string> {
+  const ref = collection(db, "seasons").withConverter(seasonConverter);
+  const docRef = await addDoc(ref, season as Season);
+  return docRef.id;
+}
+
+/** Get all seasons for a host, newest first. */
+export async function getSeasonsByHost(hostId: string): Promise<Season[]> {
+  const ref = collection(db, "seasons").withConverter(seasonConverter);
+  const q = query(ref, where("hostId", "==", hostId), orderBy("startDate", "desc"));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => d.data());
+}
+
+/** Subscribe to seasons for a host (live). */
+export function subscribeToSeasons(
+  hostId: string,
+  callback: (seasons: Season[]) => void
+): () => void {
+  const ref = collection(db, "seasons").withConverter(seasonConverter);
+  const q = query(ref, where("hostId", "==", hostId), orderBy("startDate", "desc"));
+  return onSnapshot(q, (snapshot) => {
+    callback(snapshot.docs.map((d) => d.data()));
+  });
+}
+
+/** Get the currently active season for a host (null if none). */
+export async function getActiveSeason(hostId: string): Promise<Season | null> {
+  const ref = collection(db, "seasons").withConverter(seasonConverter);
+  const q = query(ref, where("hostId", "==", hostId), where("active", "==", true));
+  const snapshot = await getDocs(q);
+  if (snapshot.empty) return null;
+  return snapshot.docs[0].data();
+}
+
+/** Close a season (mark inactive + set endDate). */
+export async function closeSeason(seasonId: string): Promise<void> {
+  const ref = doc(db, "seasons", seasonId);
+  await updateDoc(ref, {
+    active: false,
+    endDate: Timestamp.fromDate(new Date()),
   });
 }
