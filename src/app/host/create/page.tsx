@@ -261,7 +261,7 @@ export default function CreateGamePage() {
         </div>
 
         <Button onClick={handleCreate} disabled={loading} size="lg" className="w-full">
-          {loading ? <LoadingSpinner variant="inline" /> : "🎙️ CREATE GAME"}
+          {loading ? <LoadingSpinner variant="inline" /> : "CREATE GAME"}
         </Button>
       </div>
     </div>

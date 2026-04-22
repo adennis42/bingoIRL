@@ -176,7 +176,7 @@ export default function PlayerGamePage() {
               {currentRound.prize && (
                 <div className="text-right">
                   <p className="text-text-disabled text-xs font-mono uppercase tracking-widest">Prize</p>
-                  <p className="text-gold font-bold text-base">🏆 {currentRound.prize}</p>
+                  <p className="text-gold font-bold text-base"> {currentRound.prize}</p>
                 </div>
               )}
             </div>
@@ -211,7 +211,7 @@ export default function PlayerGamePage() {
               <>
                 <div className="h-px bg-bg-border" />
                 <div className="flex items-center gap-3 p-3 bg-gold/10 border border-gold/30 rounded-xl">
-                  <span className="text-2xl">🎉</span>
+                  <span className="text-2xl"></span>
                   <div>
                     <p className="text-xs text-text-secondary">Winner</p>
                     <p className="text-gold font-bold">{currentRound.winnerName}</p>
@@ -225,7 +225,7 @@ export default function PlayerGamePage() {
         {/* Game ended */}
         {game.status === "ended" && (
           <div className="card p-6 text-center space-y-2">
-            <div className="text-4xl">🏁</div>
+            <div className="text-4xl"></div>
             <p className="font-display text-xl font-bold">Game Over</p>
             <p className="text-text-secondary text-sm">Thanks for playing!</p>
           </div>

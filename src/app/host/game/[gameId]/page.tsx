@@ -306,7 +306,7 @@ export default function HostGamePage() {
           <BackButton href="/host/dashboard" label="Dashboard" />
           <div className="flex items-center gap-3">
             <span className="text-text-disabled text-xs font-mono uppercase tracking-widest">
-              {game.status === "active" ? "🟢 Live" : "🔴 Ended"}
+              {game.status === "active" ? "LIVE" : "ENDED"}
             </span>
             <button
               onClick={toggleFullscreen}
@@ -317,7 +317,7 @@ export default function HostGamePage() {
               }}
               title={isFullscreen ? "Exit Fullscreen" : "Go Fullscreen"}
             >
-              {isFullscreen ? "⛶ EXIT" : "⛶ FULLSCREEN"}
+              {isFullscreen ? "EXIT" : "FULLSCREEN"}
             </button>
           </div>
         </div>
@@ -325,7 +325,7 @@ export default function HostGamePage() {
         {/* Game Ended Banner */}
         {isGameEnded && (
           <div className="bg-warn/10 border border-warn/40 rounded-2xl p-5 text-center">
-            <h2 className="font-display text-xl font-bold text-warn">🏁 Game Over</h2>
+            <h2 className="font-display text-xl font-bold text-warn">GAME OVER</h2>
             <p className="text-text-secondary text-sm mt-1">All rounds complete.</p>
           </div>
         )}
@@ -356,7 +356,7 @@ export default function HostGamePage() {
                     onClick={() => setShowQRModal(true)}
                     className="shrink-0 px-3 py-2 rounded-xl bg-elevated border border-bg-border text-xs font-semibold text-text-secondary hover:text-text-primary hover:border-primary/40 transition-all"
                   >
-                    📱 QR
+                    QR
                   </button>
                 </div>
               </div>
@@ -365,7 +365,7 @@ export default function HostGamePage() {
 
             {/* Player Count */}
             <div className="card p-5 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-secondary/15 flex items-center justify-center text-2xl">👥</div>
+              <div className="w-12 h-12 rounded-xl bg-secondary/15 flex items-center justify-center text-2xl"></div>
               <div>
                 <p className="text-text-secondary text-xs uppercase tracking-widest">Players</p>
                 <p className="font-mono text-3xl font-black text-text-primary">{players.length}</p>
@@ -384,19 +384,19 @@ export default function HostGamePage() {
                 <p className="font-semibold capitalize">{currentRound.pattern.replace(/_/g, " ")}</p>
                 {currentRound.prize && (
                   <div className="flex items-center gap-2">
-                    <span className="text-gold text-sm">🏆</span>
+                    <span className="text-gold text-sm"></span>
                     <span className="text-gold text-sm font-semibold">{currentRound.prize}</span>
                   </div>
                 )}
                 {currentRound.winnerName && (
                   <div className="p-3 bg-gold/10 border border-gold/30 rounded-xl">
                     <p className="text-xs text-text-secondary mb-0.5">Winner</p>
-                    <p className="text-gold font-bold">🎉 {currentRound.winnerName}</p>
+                    <p className="text-gold font-bold">{currentRound.winnerName}</p>
                   </div>
                 )}
                 {game.status === "active" && !currentRound.winnerName && (
                   <Button onClick={() => setShowWinnerModal(true)} className="w-full" variant="gold">
-                    🏆 Mark Winner
+                    MARK WINNER
                   </Button>
                 )}
                 {game.status === "active" && (

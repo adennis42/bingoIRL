@@ -70,7 +70,7 @@ export default function HomePage() {
       {/* Buttons */}
       <div className="flex flex-col gap-4 w-full max-w-xs">
         <Link href="/host/dashboard" className="cel-btn-yellow">
-          <span className="cel-btn-inner">🎙️ HOST A GAME</span>
+          <span className="cel-btn-inner">HOST A GAME</span>
         </Link>
         <Link href="/play" className="cel-btn-blue">
           <span className="cel-btn-inner">🎴 JOIN A GAME</span>

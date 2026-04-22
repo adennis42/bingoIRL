@@ -106,9 +106,9 @@ export default function LeaderboardPage() {
   }
 
   const rankEmoji = (i: number) => {
-    if (i === 0) return "🥇";
-    if (i === 1) return "🥈";
-    if (i === 2) return "🥉";
+    if (i === 0) return "#1";
+    if (i === 1) return "#2";
+    if (i === 2) return "#3";
     return `#${i + 1}`;
   };
 
@@ -129,7 +129,7 @@ export default function LeaderboardPage() {
             className="font-black text-3xl uppercase text-white tracking-wide"
             style={{ fontFamily: "'Arial Black', Impact, sans-serif", textShadow: "3px 3px 0px #111" }}
           >
-            🏆 LEADERBOARD
+            LEADERBOARD
           </h1>
           <p className="text-[#555] text-sm font-bold uppercase tracking-wider mt-1">
             Overall wins &amp; seasonal standings
@@ -157,7 +157,7 @@ export default function LeaderboardPage() {
                     }
               }
             >
-              {t === "overall" ? "🌍 Overall" : "📅 Seasonal"}
+              {t === "overall" ? "OVERALL" : "SEASONAL"}
             </button>
           ))}
         </div>
@@ -200,7 +200,7 @@ export default function LeaderboardPage() {
                     >
                       {entry.playerName}
                     </p>
-                    <p className="text-[#555] text-xs font-bold uppercase truncate">📍 {entry.location}</p>
+                    <p className="text-[#555] text-xs font-bold uppercase truncate"> {entry.location}</p>
                   </div>
                   <div className="text-right">
                     <p
@@ -264,7 +264,7 @@ export default function LeaderboardPage() {
                   className="w-full py-2 font-black uppercase text-xs tracking-widest border-[3px] border-[#111] text-[#e84040] transition-all"
                   style={{ background: "#2a0000", boxShadow: "3px 3px 0px #111" }}
                 >
-                  🏁 Close Season
+                  CLOSE SEASON
                 </button>
               )}
 
@@ -281,7 +281,7 @@ export default function LeaderboardPage() {
                     disabled={!newSeasonName.trim() || creatingseason}
                     className="w-full"
                   >
-                    {creatingseason ? "Creating…" : "🌱 Start Season"}
+                    {creatingseason ? "Creating…" : "START SEASON"}
                   </Button>
                 </div>
               )}
@@ -330,7 +330,7 @@ export default function LeaderboardPage() {
                       >
                         {entry.playerName}
                       </p>
-                      <p className="text-[#555] text-xs font-bold uppercase truncate">📍 {entry.location}</p>
+                      <p className="text-[#555] text-xs font-bold uppercase truncate"> {entry.location}</p>
                     </div>
                     <div className="text-right">
                       <p

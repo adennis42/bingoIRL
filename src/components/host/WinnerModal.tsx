@@ -27,10 +27,10 @@ export function WinnerModal({ isOpen, onClose, onConfirm, roundNumber, prize, lo
   };
 
   return (
-    <BottomSheet isOpen={isOpen} onClose={() => !loading && onClose()} title={`🏆 Round ${roundNumber} Winner`}>
+    <BottomSheet isOpen={isOpen} onClose={() => !loading && onClose()} title={`ROUND ${roundNumber} Winner`}>
       {prize && (
         <div className="flex items-center gap-2 p-3 bg-gold/10 border border-gold/30 rounded-xl">
-          <span className="text-lg">🎁</span>
+          <span className="text-lg">PRIZE</span>
           <div>
             <p className="text-xs text-text-secondary">Prize</p>
             <p className="text-gold font-bold text-sm">{prize}</p>
@@ -57,7 +57,7 @@ export function WinnerModal({ isOpen, onClose, onConfirm, roundNumber, prize, lo
             Cancel
           </Button>
           <Button type="submit" variant="gold" disabled={!winnerName.trim() || loading} className="flex-1">
-            {loading ? "Saving…" : "Confirm Winner 🎉"}
+            {loading ? "Saving…" : "Confirm Winner "}
           </Button>
         </div>
       </form>

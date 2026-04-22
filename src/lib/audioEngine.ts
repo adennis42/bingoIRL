@@ -11,8 +11,8 @@ export const SOUNDS: SoundDef[] = [
   // Original 12
   { id: "drum_roll",    emoji: "🥁", label: "DRUM ROLL",    color: "blue" },
   { id: "air_horn",     emoji: "📯", label: "AIR HORN",     color: "red" },
-  { id: "fanfare",      emoji: "🎉", label: "FANFARE",      color: "yellow" },
-  { id: "buzzer",       emoji: "❌", label: "BUZZER",       color: "red" },
+  { id: "fanfare",      emoji: "", label: "FANFARE",      color: "yellow" },
+  { id: "buzzer",       emoji: "X", label: "BUZZER",       color: "red" },
   { id: "applause",     emoji: "👏", label: "APPLAUSE",     color: "green" },
   { id: "ding",         emoji: "🔔", label: "DING",         color: "yellow" },
   { id: "sad_trombone", emoji: "😂", label: "SAD TROMBONE", color: "orange" },
@@ -22,7 +22,7 @@ export const SOUNDS: SoundDef[] = [
   { id: "shhhh",        emoji: "🤫", label: "SHHHH",        color: "purple" },
   { id: "lets_go",      emoji: "🎵", label: "LET'S GO",     color: "green" },
   // 18 new sounds
-  { id: "winner",    emoji: "🏆", label: "WINNER",      color: "yellow" },
+  { id: "winner",    emoji: "", label: "WINNER",      color: "yellow" },
   { id: "jackpot",   emoji: "💰", label: "JACKPOT",     color: "yellow" },
   { id: "party",     emoji: "🎊", label: "PARTY",       color: "yellow" },
   { id: "laugh",     emoji: "🤣", label: "LAUGH",       color: "orange" },

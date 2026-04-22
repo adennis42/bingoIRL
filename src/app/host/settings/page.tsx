@@ -220,7 +220,7 @@ export default function HostSettingsPage() {
                     {(sound || customMeta) ? (
                       <>
                         <span style={{ fontSize: "1.4rem", lineHeight: 1 }}>
-                          {sound ? sound.emoji : "🎙"}
+                          {sound ? sound.emoji : ""}
                         </span>
                         <span style={{ fontSize: "6px", fontWeight: 900, textTransform: "uppercase", color: palette!.text, letterSpacing: "0.04em", textAlign: "center", padding: "0 2px" }}>
                           {sound ? sound.label : customMeta!.name}
@@ -345,7 +345,7 @@ export default function HostSettingsPage() {
                       <span style={{ fontSize: "8px", fontWeight: 900, color: "#111" }}>✓</span>
                     </div>
                   )}
-                  <span style={{ fontSize: "1.3rem", lineHeight: 1 }}>🎙</span>
+                  <span style={{ fontSize: "1.3rem", lineHeight: 1 }}></span>
                   <span style={{ fontSize: "6px", fontWeight: 900, textTransform: "uppercase", color: isDisabled ? "#555" : CUSTOM_PALETTE.text, letterSpacing: "0.04em", textAlign: "center", padding: "0 2px" }}>
                     {cs.name}
                   </span>
@@ -366,7 +366,7 @@ export default function HostSettingsPage() {
               className="font-black text-lg uppercase text-white tracking-wide"
               style={{ fontFamily: "'Arial Black', sans-serif", textShadow: "1px 1px 0px #111" }}
             >
-              🎙 CUSTOM SOUNDS
+               CUSTOM SOUNDS
             </h2>
             <p className="text-[#555] text-xs font-bold uppercase tracking-wider mt-1">
               Record your own sounds (max 15s each)
@@ -429,7 +429,7 @@ export default function HostSettingsPage() {
                     border: "2px solid #333",
                   }}
                 >
-                  <span style={{ fontSize: "1.1rem" }}>🎙</span>
+                  <span style={{ fontSize: "1.1rem" }}></span>
                   <span
                     style={{
                       flex: 1,

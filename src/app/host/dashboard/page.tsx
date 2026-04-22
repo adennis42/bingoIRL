@@ -58,10 +58,10 @@ export default function HostDashboardPage() {
         {/* Quick actions */}
         <div className="grid grid-cols-2 gap-3">
           {[
-            { href: "/host/create", icon: "🎙️", label: "New Game", sub: "Start hosting" },
-            { href: "/host/leaderboard", icon: "🏆", label: "Leaderboard", sub: "Winners & seasons" },
-            { href: "/host/patterns", icon: "🎨", label: "Patterns", sub: "Custom designs" },
-            { href: "/host/settings", icon: "⚙️", label: "Settings", sub: "Sounds & prefs" },
+            { href: "/host/create", icon: "", label: "New Game", sub: "Start hosting" },
+            { href: "/host/leaderboard", icon: "", label: "Leaderboard", sub: "Winners & seasons" },
+            { href: "/host/patterns", icon: "", label: "Patterns", sub: "Custom designs" },
+            { href: "/host/settings", icon: "", label: "Settings", sub: "Sounds & prefs" },
           ].map(({ href, icon, label, sub }) => (
             <Link key={href} href={href}>
               <div
@@ -164,7 +164,7 @@ export default function HostDashboardPage() {
               <p className="text-[#555] text-sm font-bold mt-1">Create your first game to get started.</p>
             </div>
             <Link href="/host/create">
-              <Button className="mt-1">🎙️ CREATE GAME</Button>
+              <Button className="mt-1">CREATE GAME</Button>
             </Link>
           </div>
         )}

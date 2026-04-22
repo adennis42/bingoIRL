@@ -87,7 +87,7 @@ export function RecordButton({
         ? "⏳ PROCESSING..."
         : isRecording
         ? `⏹ STOP (${seconds}s / ${maxSeconds}s)`
-        : "🎙 RECORD"}
+        : " RECORD"}
     </button>
   );
 }

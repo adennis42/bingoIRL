@@ -20,7 +20,7 @@ export function RoundCompleteModal({
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose}>
       <div className="text-center space-y-5">
-        <div className="text-6xl">{isLastRound ? "🏁" : "🎉"}</div>
+        <div className="text-6xl">{isLastRound ? "" : ""}</div>
 
         <div>
           <h2 className="font-display text-2xl font-black">

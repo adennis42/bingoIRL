@@ -135,7 +135,7 @@ export function GameLobby({ game, players, onStartGame, starting, error }: GameL
           {game.rounds.map((round, i) => (
             <div key={i} className="flex items-center justify-between text-sm">
               <span className="text-text-secondary">Round {round.roundNumber} · <span className="capitalize">{round.pattern.replace(/_/g, " ")}</span></span>
-              {round.prize && <span className="text-gold text-xs font-semibold">🏆 {round.prize}</span>}
+              {round.prize && <span className="text-gold text-xs font-semibold"> {round.prize}</span>}
             </div>
           ))}
         </div>
@@ -154,7 +154,7 @@ export function GameLobby({ game, players, onStartGame, starting, error }: GameL
           size="xl"
           className="w-full"
         >
-          {starting ? "Starting…" : "🎙️ Start Game"}
+          {starting ? "Starting…" : "START GAME"}
         </Button>
 
         <p className="text-text-disabled text-xs text-center">
