@@ -17,6 +17,38 @@ import { BottomSheet } from "@/components/shared/BottomSheet";
 import Link from "next/link";
 import type { LeaderboardEntry, SeasonalEntry, Season } from "@/types";
 
+function ShareLink({ hostId }: { hostId: string }) {
+  const [copied, setCopied] = useState(false);
+  const url = typeof window !== "undefined"
+    ? `${window.location.origin}/leaderboard/${hostId}`
+    : `https://bingoirl.app/leaderboard/${hostId}`;
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  return (
+    <div className="flex items-center gap-2 mt-3">
+      <span className="text-[#333] text-xs font-bold truncate max-w-[180px]">{url}</span>
+      <button
+        onClick={handleCopy}
+        className="shrink-0 px-3 py-1 border-[2px] border-[#111] font-black uppercase text-[10px] tracking-widest text-[#111] transition-all active:translate-x-[1px] active:translate-y-[1px]"
+        style={{
+          background: copied
+            ? "linear-gradient(to bottom, #80ffaa 0%, #50e878 45%, #1a9933 100%)"
+            : "linear-gradient(to bottom, #ffe066 0%, #f5c542 45%, #c49200 100%)",
+          boxShadow: "2px 2px 0px #111",
+        }}
+      >
+        {copied ? "COPIED!" : "COPY LINK"}
+      </button>
+    </div>
+  );
+}
+
 type Tab = "overall" | "seasonal";
 
 function rankLabel(i: number): string {
@@ -173,6 +205,9 @@ export default function LeaderboardPage() {
           <p className="text-[#555] text-sm font-bold uppercase tracking-wider mt-1">
             Overall wins &amp; seasonal standings
           </p>
+          {user && (
+            <ShareLink hostId={user.uid} />
+          )}
         </div>
 
         {/* Tabs */}

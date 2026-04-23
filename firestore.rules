@@ -56,16 +56,16 @@ service cloud.firestore {
       }
     }
     
-    // Overall leaderboard (all authenticated users can read, hosts can write)
+    // Overall leaderboard — public read, authenticated write
     match /leaderboard_overall/{entryId} {
-      allow read: if isAuthenticated();
+      allow read: if true;
       allow write: if isAuthenticated();
     }
 
     // Seasons collection
     match /seasons/{seasonId} {
-      // Anyone authenticated can read seasons
-      allow read: if isAuthenticated();
+      // Public read (shared leaderboard links need this)
+      allow read: if true;
 
       // Only the host who owns the season can create/update/delete
       allow create: if isAuthenticated() &&
@@ -73,9 +73,9 @@ service cloud.firestore {
       allow update, delete: if isAuthenticated() &&
                      resource.data.hostId == request.auth.uid;
 
-      // Seasonal leaderboard entries subcollection
+      // Seasonal leaderboard entries — public read, authenticated write
       match /entries/{entryId} {
-        allow read: if isAuthenticated();
+        allow read: if true;
         allow write: if isAuthenticated();
       }
     }
