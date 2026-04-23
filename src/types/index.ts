@@ -27,13 +27,21 @@ export interface Game {
 
 // ─── Leaderboard ───────────────────────────────────────────────────────────
 
-export interface LeaderboardEntry {
-  id: string;           // playerName (slugified) or auto-id
-  playerName: string;
+export interface WinRecord {
+  date: Date | string;
   location: string;
+  gameId: string;
+  seasonId?: string;
+}
+
+export interface LeaderboardEntry {
+  id: string;           // slugified player name
+  playerName: string;
   totalWins: number;
   lastWin: Date;
-  lastGameId?: string;
+  lastLocation: string;  // most recent location
+  locations: string[];   // all unique locations this player has won at
+  winHistory: WinRecord[];
 }
 
 export interface Season {
@@ -42,16 +50,17 @@ export interface Season {
   startDate: Date;
   endDate?: Date;
   active: boolean;
-  hostId: string;       // the host who owns/manages this season
+  hostId: string;
 }
 
 export interface SeasonalEntry {
-  id: string;           // playerName (slugified) or auto-id
+  id: string;           // slugified player name
   playerName: string;
-  location: string;
   wins: number;
   lastWin: Date;
-  lastGameId?: string;
+  lastLocation: string;
+  locations: string[];
+  winHistory: WinRecord[];
 }
 
 export interface CalledNumber {

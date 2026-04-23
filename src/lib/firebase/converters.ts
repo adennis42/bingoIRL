@@ -4,7 +4,7 @@ import {
   SnapshotOptions,
   Timestamp,
 } from "firebase/firestore";
-import type { Game, CalledNumber, Player, Round, CustomPattern, LeaderboardEntry, Season, SeasonalEntry } from "@/types";
+import type { Game, CalledNumber, Player, Round, CustomPattern, LeaderboardEntry, Season, SeasonalEntry, WinRecord } from "@/types";
 
 export const gameConverter = {
   toFirestore(game: Game): DocumentData {
@@ -54,14 +54,38 @@ export const gameConverter = {
   },
 };
 
+function convertWinHistory(raw: any[]): WinRecord[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.map((r) => ({
+    date: r.date?.toDate
+      ? r.date.toDate()
+      : r.date
+      ? new Date(r.date)
+      : new Date(),
+    location: r.location || "",
+    gameId: r.gameId || "",
+    seasonId: r.seasonId || undefined,
+  }));
+}
+
+function winHistoryToFirestore(history: WinRecord[]) {
+  return history.map((r) => ({
+    date: typeof r.date === "string" ? r.date : (r.date as Date).toISOString(),
+    location: r.location,
+    gameId: r.gameId,
+    seasonId: r.seasonId || null,
+  }));
+}
+
 export const leaderboardEntryConverter = {
   toFirestore(entry: LeaderboardEntry): DocumentData {
     return {
       playerName: entry.playerName,
-      location: entry.location,
       totalWins: entry.totalWins,
       lastWin: Timestamp.fromDate(entry.lastWin),
-      lastGameId: entry.lastGameId || null,
+      lastLocation: entry.lastLocation,
+      locations: entry.locations,
+      winHistory: winHistoryToFirestore(entry.winHistory),
     };
   },
   fromFirestore(
@@ -72,10 +96,11 @@ export const leaderboardEntryConverter = {
     return {
       id: snapshot.id,
       playerName: data.playerName,
-      location: data.location,
       totalWins: data.totalWins,
       lastWin: data.lastWin.toDate(),
-      lastGameId: data.lastGameId || undefined,
+      lastLocation: data.lastLocation || "",
+      locations: data.locations || [],
+      winHistory: convertWinHistory(data.winHistory || []),
     };
   },
 };
@@ -110,10 +135,11 @@ export const seasonalEntryConverter = {
   toFirestore(entry: SeasonalEntry): DocumentData {
     return {
       playerName: entry.playerName,
-      location: entry.location,
       wins: entry.wins,
       lastWin: Timestamp.fromDate(entry.lastWin),
-      lastGameId: entry.lastGameId || null,
+      lastLocation: entry.lastLocation,
+      locations: entry.locations,
+      winHistory: winHistoryToFirestore(entry.winHistory),
     };
   },
   fromFirestore(
@@ -124,10 +150,11 @@ export const seasonalEntryConverter = {
     return {
       id: snapshot.id,
       playerName: data.playerName,
-      location: data.location,
       wins: data.wins,
       lastWin: data.lastWin.toDate(),
-      lastGameId: data.lastGameId || undefined,
+      lastLocation: data.lastLocation || "",
+      locations: data.locations || [],
+      winHistory: convertWinHistory(data.winHistory || []),
     };
   },
 };

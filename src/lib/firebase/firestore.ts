@@ -14,6 +14,7 @@ import {
   onSnapshot,
   Timestamp,
   increment,
+  arrayUnion,
   QueryConstraint,
   FirestoreError,
 } from "firebase/firestore";
@@ -348,44 +349,52 @@ function slugifyName(name: string): string {
 }
 
 /**
- * Record a win to the overall leaderboard (upsert by slugified player name).
- * If the player already exists, increments totalWins and updates lastWin/location.
+ * Record a win to the overall leaderboard.
+ * Upserts by slugified player name, appends to winHistory, tracks all locations.
  */
 export async function recordOverallWin({
   playerName,
   location,
   gameId,
+  seasonId,
 }: {
   playerName: string;
   location: string;
   gameId: string;
+  seasonId?: string;
 }): Promise<void> {
   const entryId = slugifyName(playerName);
-  const ref = doc(db, "leaderboard_overall", entryId).withConverter(leaderboardEntryConverter);
-  const snapshot = await getDoc(ref);
+  const rawRef = doc(db, "leaderboard_overall", entryId);
+  const snapshot = await getDoc(rawRef);
   const now = new Date();
+  const newRecord = { date: now.toISOString(), location, gameId, seasonId: seasonId || null };
+
   if (snapshot.exists()) {
-    await updateDoc(ref, {
+    const existingLocations: string[] = snapshot.data().locations || [];
+    const updatedLocations = existingLocations.includes(location)
+      ? existingLocations
+      : [...existingLocations, location];
+    await updateDoc(rawRef, {
       totalWins: increment(1),
       lastWin: Timestamp.fromDate(now),
-      lastGameId: gameId,
-      location, // update to latest location
+      lastLocation: location,
+      locations: updatedLocations,
+      winHistory: arrayUnion(newRecord),
     });
   } else {
-    await setDoc(ref, {
-      id: entryId,
+    await setDoc(rawRef, {
       playerName,
-      location,
       totalWins: 1,
-      lastWin: now,
-      lastGameId: gameId,
+      lastWin: Timestamp.fromDate(now),
+      lastLocation: location,
+      locations: [location],
+      winHistory: [newRecord],
     });
   }
 }
 
 /**
  * Record a win to a seasonal leaderboard entry.
- * Seasonal entries are stored at /seasons/{seasonId}/entries/{slugifiedName}.
  */
 export async function recordSeasonalWin({
   seasonId,
@@ -399,24 +408,31 @@ export async function recordSeasonalWin({
   gameId: string;
 }): Promise<void> {
   const entryId = slugifyName(playerName);
-  const ref = doc(db, "seasons", seasonId, "entries", entryId).withConverter(seasonalEntryConverter);
-  const snapshot = await getDoc(ref);
+  const rawRef = doc(db, "seasons", seasonId, "entries", entryId);
+  const snapshot = await getDoc(rawRef);
   const now = new Date();
+  const newRecord = { date: now.toISOString(), location, gameId, seasonId };
+
   if (snapshot.exists()) {
-    await updateDoc(ref, {
+    const existingLocations: string[] = snapshot.data().locations || [];
+    const updatedLocations = existingLocations.includes(location)
+      ? existingLocations
+      : [...existingLocations, location];
+    await updateDoc(rawRef, {
       wins: increment(1),
       lastWin: Timestamp.fromDate(now),
-      lastGameId: gameId,
-      location,
+      lastLocation: location,
+      locations: updatedLocations,
+      winHistory: arrayUnion(newRecord),
     });
   } else {
-    await setDoc(ref, {
-      id: entryId,
+    await setDoc(rawRef, {
       playerName,
-      location,
       wins: 1,
-      lastWin: now,
-      lastGameId: gameId,
+      lastWin: Timestamp.fromDate(now),
+      lastLocation: location,
+      locations: [location],
+      winHistory: [newRecord],
     });
   }
 }
@@ -499,4 +515,29 @@ export async function closeSeason(seasonId: string): Promise<void> {
     active: false,
     endDate: Timestamp.fromDate(new Date()),
   });
+}
+
+// ─── Autocomplete ───────────────────────────────────────────────────────────
+
+/**
+ * Search leaderboard entries by player name prefix (case-insensitive client-side).
+ * Fetches all entries from overall leaderboard and deduplicates by name.
+ * Returns up to `limit` matches sorted alphabetically.
+ */
+export async function searchLeaderboardNames(
+  prefix: string,
+  limit: number = 8
+): Promise<string[]> {
+  if (!prefix || prefix.trim().length < 1) return [];
+  const lowerPrefix = prefix.trim().toLowerCase();
+
+  const ref = collection(db, "leaderboard_overall").withConverter(leaderboardEntryConverter);
+  const snapshot = await getDocs(ref);
+
+  const names = snapshot.docs
+    .map((d) => d.data().playerName)
+    .filter((name) => name.toLowerCase().startsWith(lowerPrefix))
+    .slice(0, limit);
+
+  return names.sort();
 }
