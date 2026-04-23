@@ -73,6 +73,8 @@ export default function LeaderboardPage() {
   const [seasonalEntries, setSeasonalEntries] = useState<SeasonalEntry[]>([]);
   const [showNewSeasonForm, setShowNewSeasonForm] = useState(false);
   const [newSeasonName, setNewSeasonName] = useState("");
+  const [newSeasonStartDate, setNewSeasonStartDate] = useState("");
+  const [newSeasonEndDate, setNewSeasonEndDate] = useState("");
   const [creatingSeason, setCreatingSeason] = useState(false);
   const [showCloseConfirm, setShowCloseConfirm] = useState(false);
   const [closingSeasonId, setClosingSeasonId] = useState("");
@@ -109,8 +111,18 @@ export default function LeaderboardPage() {
     if (!user || !newSeasonName.trim()) return;
     setCreatingSeason(true);
     try {
-      await createSeason({ name: newSeasonName.trim(), startDate: new Date(), active: true, hostId: user.uid });
+      const startDate = newSeasonStartDate ? new Date(newSeasonStartDate) : new Date();
+      const endDate = newSeasonEndDate ? new Date(newSeasonEndDate) : undefined;
+      await createSeason({
+        name: newSeasonName.trim(),
+        startDate,
+        endDate,
+        active: true,
+        hostId: user.uid,
+      });
       setNewSeasonName("");
+      setNewSeasonStartDate("");
+      setNewSeasonEndDate("");
       setShowNewSeasonForm(false);
     } catch (err) {
       console.error("Failed to create season:", err);
@@ -259,9 +271,15 @@ export default function LeaderboardPage() {
                   value={selectedSeasonId}
                   onChange={(e) => setSelectedSeasonId(e.target.value)}
                 >
-                  {seasons.map((s) => (
-                    <option key={s.id} value={s.id}>{s.name}{s.active ? " (Active)" : ""}</option>
-                  ))}
+                  {seasons.map((s) => {
+                    const start = s.startDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+                    const end = s.endDate ? s.endDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Open";
+                    return (
+                      <option key={s.id} value={s.id}>
+                        {s.name} ({start} – {end}){s.active ? " ●" : ""}
+                      </option>
+                    );
+                  })}
                 </select>
               ) : (
                 <p className="text-[#555] text-sm font-bold">No seasons yet.</p>
@@ -278,8 +296,35 @@ export default function LeaderboardPage() {
               )}
 
               {showNewSeasonForm && (
-                <div className="space-y-2 pt-2 border-t-[2px] border-[#222]">
-                  <Input placeholder="e.g. Spring 2026" value={newSeasonName} onChange={(e) => setNewSeasonName(e.target.value)} />
+                <div className="space-y-3 pt-3 border-t-[2px] border-[#222]">
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-[#555] block mb-1">Season Name</label>
+                    <Input placeholder="e.g. Spring 2026" value={newSeasonName} onChange={(e) => setNewSeasonName(e.target.value)} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[10px] font-black uppercase tracking-widest text-[#555] block mb-1">Start Date</label>
+                      <input
+                        type="date"
+                        value={newSeasonStartDate}
+                        onChange={(e) => setNewSeasonStartDate(e.target.value)}
+                        className="w-full h-12 px-3 text-sm font-bold text-white focus:outline-none"
+                        style={{ background: "#1e1e1e", border: "3px solid #111", boxShadow: "3px 3px 0px #111", colorScheme: "dark" }}
+                      />
+                      <p className="text-[10px] text-[#333] font-bold mt-1">Defaults to today</p>
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-black uppercase tracking-widest text-[#555] block mb-1">End Date</label>
+                      <input
+                        type="date"
+                        value={newSeasonEndDate}
+                        onChange={(e) => setNewSeasonEndDate(e.target.value)}
+                        className="w-full h-12 px-3 text-sm font-bold text-white focus:outline-none"
+                        style={{ background: "#1e1e1e", border: "3px solid #111", boxShadow: "3px 3px 0px #111", colorScheme: "dark" }}
+                      />
+                      <p className="text-[10px] text-[#333] font-bold mt-1">Optional</p>
+                    </div>
+                  </div>
                   <Button onClick={handleCreateSeason} disabled={!newSeasonName.trim() || creatingSeason} className="w-full">
                     {creatingSeason ? "Creating…" : "START SEASON"}
                   </Button>

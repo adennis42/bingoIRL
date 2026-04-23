@@ -146,7 +146,13 @@ export default function PublicLeaderboardPage() {
                 }}
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-[#111] inline-block" />
-                {activeSeason.name} — Active
+                {activeSeason.name}
+                {activeSeason.startDate && (
+                  <span className="opacity-70 font-bold normal-case tracking-normal">
+                    {activeSeason.startDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                    {activeSeason.endDate ? ` – ${activeSeason.endDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })}` : " – present"}
+                  </span>
+                )}
               </div>
             )}
           </div>
@@ -192,11 +198,15 @@ export default function PublicLeaderboardPage() {
             value={selectedSeasonId}
             onChange={(e) => setSelectedSeasonId(e.target.value)}
           >
-            {seasons.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}{s.active ? " (Current)" : ""}
-              </option>
-            ))}
+            {seasons.map((s) => {
+              const start = s.startDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+              const end = s.endDate ? s.endDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "present";
+              return (
+                <option key={s.id} value={s.id}>
+                  {s.name} ({start} – {end}){s.active ? " ●" : ""}
+                </option>
+              );
+            })}
           </select>
         )}
 
