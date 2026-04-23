@@ -45,12 +45,14 @@ export function getAllNumbers(): string[] {
 }
 
 export function getColumnColor(column: BingoColumn): string {
+  // Literal hex values — required for use in JS string interpolation (gradients, box-shadows etc)
+  // Per BingoIRL design spec: B=Blue, I=Red, N=White, G=Green, O=Orange
   const colorMap: Record<BingoColumn, string> = {
-    B: "var(--col-b)",
-    I: "var(--col-i)",
-    N: "var(--col-n)",
-    G: "var(--col-g)",
-    O: "var(--col-o)",
+    B: "#4db8ff",  // Blue
+    I: "#e84040",  // Red
+    N: "#f0f0f0",  // White (slightly off-white for contrast)
+    G: "#50e878",  // Green
+    O: "#ff6b35",  // Orange
   };
   return colorMap[column];
 }

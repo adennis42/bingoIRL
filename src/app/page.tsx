@@ -73,7 +73,7 @@ export default function HomePage() {
           <span className="cel-btn-inner">HOST A GAME</span>
         </Link>
         <Link href="/play" className="cel-btn-blue">
-          <span className="cel-btn-inner">🎴 JOIN A GAME</span>
+          <span className="cel-btn-inner">JOIN A GAME</span>
         </Link>
       </div>
 
