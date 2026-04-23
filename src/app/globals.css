@@ -3,27 +3,107 @@
 @tailwind utilities;
 
 :root {
-  --bg-base: #0a0a0f;
-  --bg-surface: #13131a;
-  --bg-elevated: #1c1c28;
-  --bg-border: #2a2a3a;
+  /* ── Legacy aliases (kept for backward compat) ── */
+  --bg-base: #111111;
+  --bg-surface: #1a1a1a;
+  --bg-elevated: #1e1e1e;
+  --bg-border: #222222;
+  --accent-primary: #f5c542;
+  --accent-secondary: #4db8ff;
+  --accent-warn: #e84040;
+  --accent-gold: #f5c542;
+  --text-primary: #ffffff;
+  --text-secondary: #888888;
+  --text-disabled: #333333;
+  --radius: 0;
 
-  --accent-primary: #6c63ff;
-  --accent-secondary: #00d4aa;
-  --accent-warn: #ff6b6b;
-  --accent-gold: #ffd166;
+  /* ── Design System Tokens (BingoIRL cel-shaded) ── */
+  --bg-page: #111111;
+  --bg-input: #222222;
+  --bg-input-alt: #1e1e1e;
+  --line: #111111;
+  --line-soft: #222222;
+  --line-disabled: #333333;
+  --fg1: #ffffff;
+  --fg2: #f0f0f0;
+  --fg-muted: #888888;
+  --fg-dim: #555555;
+  --fg-disabled: #333333;
+  --fg-dark: #111111;
 
-  --text-primary: #f0f0ff;
-  --text-secondary: #8888aa;
-  --text-disabled: #44445a;
+  /* Palette */
+  --yellow: #f5c542;
+  --yellow-top: #ffe066;
+  --yellow-bot: #c49200;
+  --yellow-inset: #8a6600;
+  --yellow-gradient: linear-gradient(to bottom, #ffe066 0%, #f5c542 45%, #c49200 100%);
+  --red: #e84040;
+  --red-top: #ff7070;
+  --red-bot: #991a1a;
+  --red-inset: #660000;
+  --red-gradient: linear-gradient(to bottom, #ff7070 0%, #e84040 45%, #991a1a 100%);
+  --blue: #4db8ff;
+  --blue-top: #7dd4ff;
+  --blue-bot: #1a80cc;
+  --blue-inset: #004d99;
+  --blue-gradient: linear-gradient(to bottom, #7dd4ff 0%, #4db8ff 45%, #1a80cc 100%);
+  --green: #50e878;
+  --green-top: #80ffaa;
+  --green-bot: #1a9933;
+  --green-inset: #005c1a;
+  --green-gradient: linear-gradient(to bottom, #80ffaa 0%, #50e878 45%, #1a9933 100%);
+  --orange: #ff6b35;
+  --orange-top: #ff9060;
+  --orange-bot: #b33400;
+  --orange-inset: #7a2000;
+  --orange-gradient: linear-gradient(to bottom, #ff9060 0%, #ff6b35 45%, #b33400 100%);
 
-  --col-b: #6c63ff;
-  --col-i: #00d4aa;
-  --col-n: #ffd166;
-  --col-g: #ff6b6b;
-  --col-o: #a78bfa;
+  /* Bingo column colors */
+  --col-b: #4db8ff;
+  --col-i: #e84040;
+  --col-n: #ffffff;
+  --col-g: #50e878;
+  --col-o: #f5c542;
 
-  --radius: 1rem;
+  /* Semantic */
+  --primary: #f5c542;
+  --secondary: #4db8ff;
+  --danger: #e84040;
+  --success: #50e878;
+  --accent: #ff6b35;
+  --link: #f5c542;
+
+  /* Type */
+  --font-display: 'Arial Black', Impact, sans-serif;
+  --font-body: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Shadows */
+  --shadow-chip: 2px 2px 0 #111;
+  --shadow-card-sm: 3px 3px 0 #111;
+  --shadow-card: 4px 4px 0 #111;
+  --shadow-card-lg: 5px 5px 0 #111;
+  --shadow-hero: 6px 6px 0 #111;
+  --shadow-card-hover: 6px 6px 0 #111;
+  --shadow-hero-hover: 7px 7px 0 #111;
+  --shadow-pressed: 1px 1px 0 #111;
+  --shadow-pressed-sm: 2px 2px 0 #111;
+
+  /* Inset sheens */
+  --sheen-top: inset 0 1px 0 rgba(255,255,255,0.5);
+  --sheen-top-warm: inset 0 1px 0 rgba(255,255,255,0.35);
+  --sheen-bot-yellow: inset 0 -3px 0 #8a6600;
+  --sheen-bot-red: inset 0 -3px 0 #660000;
+  --sheen-bot-blue: inset 0 -3px 0 #004d99;
+  --sheen-bot-green: inset 0 -3px 0 #005c1a;
+  --sheen-bot-orange: inset 0 -3px 0 #7a2000;
+
+  /* Halftone */
+  --halftone-size: 5px;
+
+  /* Border widths */
+  --bw-hairline: 2px;
+  --bw-standard: 3px;
 }
 
 * {
@@ -166,5 +246,100 @@ body {
   .cel-btn-blue:active .cel-btn-inner {
     transform: translate(2px, 2px);
     box-shadow: 2px 2px 0px #111, inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -1px 0 rgba(0,0,0,0.2);
+  }
+
+  /* ── Cel Input ── */
+  .cel-input {
+    width: 100%;
+    height: 3rem;
+    padding: 0 1rem;
+    background: var(--bg-input-alt);
+    border: var(--bw-standard) solid var(--line);
+    box-shadow: var(--shadow-card-sm);
+    color: var(--fg1);
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.875rem;
+    transition: border-color 0.15s ease;
+    border-radius: 0;
+  }
+  .cel-input::placeholder { color: var(--fg-dim); }
+  .cel-input:focus { outline: none; border-color: var(--primary); }
+
+  /* ── Status chips ── */
+  .cel-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    font-family: var(--font-body);
+    font-weight: 900;
+    font-size: 0.625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--fg-dark);
+    border: var(--bw-hairline) solid var(--line);
+    box-shadow: var(--shadow-chip), var(--sheen-top);
+  }
+  .cel-chip-yellow { background: var(--yellow-gradient); }
+  .cel-chip-red    { background: var(--red-gradient); color: #fff; }
+  .cel-chip-blue   { background: var(--blue-gradient); }
+  .cel-chip-green  { background: var(--green-gradient); }
+  .cel-chip-orange { background: var(--orange-gradient); }
+  .cel-chip-ghost  { background: #333; color: #fff; box-shadow: var(--shadow-chip); }
+
+  /* ── Halftone ── */
+  .halftone {
+    background-image: radial-gradient(circle, rgba(0,0,0,0.35) 1px, transparent 1.5px);
+    background-size: var(--halftone-size) var(--halftone-size);
+  }
+  .halftone-light {
+    background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1.5px);
+    background-size: var(--halftone-size) var(--halftone-size);
+  }
+
+  /* ── Cel Cards ── */
+  .cel-card {
+    background: var(--bg-surface);
+    border: var(--bw-standard) solid var(--line);
+    box-shadow: var(--shadow-card);
+    padding: 1.25rem;
+  }
+  .cel-card-lg {
+    background: var(--bg-surface);
+    border: var(--bw-standard) solid var(--line);
+    box-shadow: var(--shadow-card-lg);
+    padding: 1.5rem;
+  }
+
+  /* ── Gold/warm text ── */
+  .text-gold { color: var(--yellow); }
+  .text-warn { color: var(--red); }
+  .text-success { color: var(--green); }
+
+  /* ── Eyebrow label ── */
+  .eyebrow {
+    font-family: var(--font-body);
+    font-weight: 900;
+    font-size: 0.625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--primary);
+  }
+  .eyebrow-muted {
+    font-family: var(--font-body);
+    font-weight: 800;
+    font-size: 0.625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--fg-dim);
+  }
+
+  /* ── Game code display ── */
+  .game-code {
+    font-family: var(--font-display);
+    font-weight: 900;
+    letter-spacing: 0.25em;
+    color: var(--fg1);
+    text-shadow: 2px 2px 0 var(--line);
   }
 }
