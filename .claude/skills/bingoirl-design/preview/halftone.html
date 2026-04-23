@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { padding: 0; min-height: 260px; position: relative; }
+  .full { min-height: 260px; background: #111; background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1.5px); background-size: 5px 5px; display:flex; align-items:center; justify-content:center; gap: 26px; }
+  .demo { text-align:center; }
+  .panel { width: 150px; height: 130px; background: #1a1a1a; border:3px solid #111; box-shadow: 4px 4px 0 #111; display:flex; align-items:center; justify-content:center; font-family: var(--font-display); font-weight:900; color:#555; font-size: 12px; letter-spacing:0.1em; text-transform:uppercase; }
+  .yellow-ht { background: #f5c542; background-image: radial-gradient(circle, rgba(0,0,0,0.3) 1px, transparent 1.5px); background-size: 6px 6px; color:#111; }
+  .lbl { font-family: var(--font-body); font-weight:900; font-size:10px; color:#888; margin-top:10px; text-transform:uppercase; letter-spacing:0.12em; }
+</style></head>
+<body>
+  <div class="full">
+    <div class="demo"><div class="panel">Halftone<br>Dark BG</div><div class="lbl">5px · white 8%</div></div>
+    <div class="demo"><div class="panel yellow-ht">Halftone<br>On Color</div><div class="lbl">6px · black 30%</div></div>
+  </div>
+</body></html>

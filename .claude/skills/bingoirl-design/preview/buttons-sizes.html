@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { padding: 20px; min-height: 160px; display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap: 14px; }
+  .row { display:flex; gap: 14px; align-items:center; flex-wrap:wrap; }
+  .lbl { font-family:var(--font-body); font-weight:900; font-size:9px; color:#555; text-transform:uppercase; letter-spacing:0.14em; width: 90px; flex-shrink:0; }
+  .sm .cel-btn-inner { padding: 0.5rem 1rem; font-size: 12px; }
+  .lg .cel-btn-inner { padding: 1.125rem 2rem; font-size: 18px; }
+  .icon-btn { width:44px; height:44px; border:3px solid #111; background: var(--yellow-gradient);
+    box-shadow: 3px 3px 0 #111, var(--sheen-top), var(--sheen-bot-yellow);
+    display:inline-flex; align-items:center; justify-content:center; font-family: var(--font-display);
+    font-weight:900; font-size: 22px; color:#111; cursor:pointer; }
+  .ghost { padding: 0.5rem 0.9rem; background: transparent; border: 0; color:#ccc; font-family: var(--font-display); font-weight:900; text-transform:uppercase; font-size: 13px; letter-spacing: 0.06em; cursor:pointer; }
+  .ghost:hover { color:#fff; background: rgba(255,255,255,0.08); }
+  .link { color:#f5c542; font-family:var(--font-body); font-weight:900; font-size:13px; text-decoration:none; text-transform:uppercase; letter-spacing:0.06em; }
+  .link:hover { text-decoration: underline; }
+</style></head>
+<body>
+  <div class="row"><span class="lbl">Sizes</span>
+    <a class="cel-btn cel-btn-yellow sm" href="#"><span class="cel-btn-inner">Small</span></a>
+    <a class="cel-btn cel-btn-yellow" href="#"><span class="cel-btn-inner">Default</span></a>
+    <a class="cel-btn cel-btn-yellow lg" href="#"><span class="cel-btn-inner">Large</span></a>
+    <button class="icon-btn">+</button>
+  </div>
+  <div class="row"><span class="lbl">Ghost / Link</span>
+    <button class="ghost">← Back</button>
+    <a class="link" href="#">Sign up free</a>
+  </div>
+</body></html>

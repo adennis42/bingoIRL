@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { padding: 20px; min-height: 180px; display:flex; flex-direction:column; gap: 12px; justify-content:center; }
+  label { font-family:var(--font-body); font-weight:900; font-size:10px; color:#f5c542; text-transform:uppercase; letter-spacing:0.14em; display:block; margin-bottom: 6px; }
+  .field { display: flex; flex-direction: column; }
+  .focus .cel-input { border-color: #f5c542; }
+  .err .cel-input { border-color: #e84040; }
+  .err-msg { font-family:var(--font-body); font-weight:900; font-size:11px; color:#ff8080; margin-top: 6px; text-transform:uppercase; }
+</style></head>
+<body>
+  <div class="field"><label>Email</label>
+    <input class="cel-input" type="email" placeholder="you@example.com" value="">
+  </div>
+  <div class="field focus"><label>Venue / Location</label>
+    <input class="cel-input" type="text" placeholder="e.g. The Rusty Anchor" value="The Rusty Anchor, Bay Shore">
+  </div>
+  <div class="field err"><label>Game Code</label>
+    <input class="cel-input" type="text" value="INVALID" style="text-align:center; letter-spacing: 0.4em; font-weight:900;">
+    <div class="err-msg">⚠ Game not found</div>
+  </div>
+</body></html>

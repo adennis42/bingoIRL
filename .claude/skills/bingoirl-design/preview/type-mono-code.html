@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { padding: 20px; min-height:180px; display:flex; flex-direction:column; justify-content:center; gap: 14px; }
+  .row { display:flex; align-items:center; gap: 14px; }
+  .lbl { font-family:var(--font-body); font-weight:900; font-size:9px; color:#555; text-transform:uppercase; letter-spacing:0.14em; width: 100px; flex-shrink:0; }
+  .code { font-family: var(--font-display); font-weight:900; font-size: 28px; color:#fff; letter-spacing: 0.25em; text-shadow: 2px 2px 0 #111; }
+  .mono-num { font-family: var(--font-mono); font-weight:700; font-size: 22px; color: #f5c542; }
+  .ball-num { font-family: var(--font-mono); font-weight:900; font-size:34px; color:#111; }
+  .ball { width: 56px; height:56px; border-radius:50%; background: radial-gradient(ellipse at 38% 32%, #4db8ff 0%, #4db8ff cc 45%, #4db8ff88 75%, #4db8ff55 100%); display:flex; align-items:center; justify-content:center; box-shadow: 0 4px 10px rgba(77,184,255,0.4), inset 0 2px 4px rgba(255,255,255,0.25), inset 0 -3px 6px rgba(0,0,0,0.35); }
+  .ball-oval { width: 36px; height: 42px; border-radius: 50%; background: rgba(255,255,255,0.96); display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .ball-col { font-family: var(--font-display); font-weight:900; font-size:9px; color:#4db8ff; line-height:1; }
+  .ball-n { font-family: var(--font-mono); font-weight:900; font-size:18px; color:#111; line-height:1; }
+  .meta { font-family: var(--font-mono); font-size:9px; color:#555; margin-left:auto; }
+</style></head>
+<body>
+  <div class="row"><span class="lbl">Game Code</span><span class="code">AX72KQ</span><span class="meta">Arial Black / 0.25em</span></div>
+  <div class="row"><span class="lbl">Mono Numeric</span><span class="mono-num">75 called</span><span class="meta">JetBrains Mono / 700</span></div>
+  <div class="row"><span class="lbl">Ball Number</span><div class="ball"><div class="ball-oval"><span class="ball-col">N</span><span class="ball-n">42</span></div></div><span class="meta">Mono inside bingo ball</span></div>
+</body></html>

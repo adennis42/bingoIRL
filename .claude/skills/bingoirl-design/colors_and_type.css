@@ -1,0 +1,392 @@
+/* ==========================================================================
+   BingoIRL Design System — Colors, Type, Spacing, Shadows
+   Cel-shaded / Borderlands / Halftone
+   ========================================================================== */
+
+/* Fonts — load before this stylesheet.
+   Google Fonts (CDN):
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+*/
+
+:root {
+  /* -- BACKGROUNDS -- */
+  --bg-page: #111111;          /* page background, near-black */
+  --bg-surface: #1a1a1a;       /* card / panel */
+  --bg-surface-alt: #161616;   /* deprioritized card (past games, ended) */
+  --bg-input: #222222;         /* input fill */
+  --bg-input-alt: #1e1e1e;     /* alt input fill from Input component */
+
+  /* -- LINE / BORDER -- */
+  --line: #111111;             /* the canonical 3px border color */
+  --line-soft: #222222;        /* separators inside dark panels */
+  --line-disabled: #333333;    /* dimmed dividers, ended-state */
+
+  /* -- TEXT -- */
+  --fg1: #ffffff;              /* primary, titles */
+  --fg2: #f0f0f0;              /* body */
+  --fg-muted: #888888;         /* tertiary */
+  --fg-dim: #555555;           /* labels, helper text, nav default */
+  --fg-disabled: #333333;      /* truly disabled */
+  --fg-dark: #111111;          /* text ON colored buttons */
+
+  /* -- PRIMARY BALL / SEMANTIC COLORS --
+     each with a top highlight → mid → bottom shadow stop and an inset-dark */
+  --yellow: #f5c542;
+  --yellow-top: #ffe066;
+  --yellow-bot: #c49200;
+  --yellow-inset: #8a6600;
+  --yellow-gradient: linear-gradient(to bottom, #ffe066 0%, #f5c542 45%, #c49200 100%);
+
+  --red: #e84040;
+  --red-top: #ff7070;
+  --red-bot: #991a1a;
+  --red-inset: #660000;
+  --red-gradient: linear-gradient(to bottom, #ff7070 0%, #e84040 45%, #991a1a 100%);
+
+  --blue: #4db8ff;
+  --blue-top: #7dd4ff;
+  --blue-bot: #1a80cc;
+  --blue-inset: #004d99;
+  --blue-gradient: linear-gradient(to bottom, #7dd4ff 0%, #4db8ff 45%, #1a80cc 100%);
+
+  --green: #50e878;
+  --green-top: #80ffaa;
+  --green-bot: #1a9933;
+  --green-inset: #005c1a;
+  --green-gradient: linear-gradient(to bottom, #80ffaa 0%, #50e878 45%, #1a9933 100%);
+
+  --orange: #ff6b35;
+  --orange-top: #ff9060;
+  --orange-bot: #b33400;
+  --orange-inset: #7a2000;
+  --orange-gradient: linear-gradient(to bottom, #ff9060 0%, #ff6b35 45%, #b33400 100%);
+
+  /* -- BINGO COLUMN COLORS -- */
+  --col-b: var(--blue);
+  --col-i: var(--red);
+  --col-n: #ffffff;
+  --col-g: var(--green);
+  --col-o: var(--yellow);
+  --white-gradient: linear-gradient(to bottom, #ffffff 0%, #f2f2f2 45%, #c4c4c4 100%);
+  --white-inset: #999999;
+  --sheen-bot-white: inset 0 -3px 0 var(--white-inset);
+
+  /* -- SEMANTIC ALIASES -- */
+  --primary: var(--yellow);           /* primary CTAs */
+  --secondary: var(--blue);           /* secondary CTAs, join */
+  --danger: var(--red);               /* destructive, error */
+  --success: var(--green);            /* confirm, live status */
+  --accent: var(--orange);            /* highlights, paused state */
+  --link: var(--yellow);              /* text links */
+
+  /* -- TYPE -- */
+  --font-display: 'Arial Black', Impact, sans-serif;  /* canonical display */
+  --font-syne: 'Syne', 'Arial Black', sans-serif;     /* legacy display, still loaded */
+  --font-body: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* -- TYPE SCALE (display)
+        display type is always font-weight 900, uppercase, tracking-wide */
+  --h-hero: 2.25rem;    /* 36px — landing page title */
+  --h1: 1.875rem;       /* 30px */
+  --h2: 1.5rem;         /* 24px */
+  --h3: 1.25rem;        /* 20px */
+  --h4: 1.125rem;       /* 18px */
+
+  /* -- TYPE SCALE (body) -- */
+  --body-lg: 1rem;      /* 16px */
+  --body: 0.875rem;     /* 14px */
+  --body-sm: 0.75rem;   /* 12px */
+  --body-xs: 0.625rem;  /* 10px — all-caps micro labels */
+
+  /* -- TRACKING / LETTER-SPACING -- */
+  --track-tight: -0.02em;
+  --track-normal: 0;
+  --track-wide: 0.04em;
+  --track-wider: 0.06em;      /* default for uppercase buttons */
+  --track-widest: 0.12em;     /* section eyebrow labels */
+  --track-code: 0.25em;       /* game codes, monospace letters */
+
+  /* -- SPACING (mirrors tailwind) -- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+
+  /* -- BORDER WIDTHS -- */
+  --bw-hairline: 2px;       /* chips, badges */
+  --bw-standard: 3px;       /* cards, buttons, inputs */
+  --bw-bold: 4px;           /* occasional emphasis, not common */
+
+  /* -- CORNERS --
+     cel-shaded prefers sharp, so these default to 0 */
+  --radius-none: 0;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 8px;          /* used sparingly, e.g. host number-grid cells */
+  --radius-pill: 9999px;
+
+  /* -- HARD SHADOWS (core language — no blur, always var(--line)) -- */
+  --shadow-chip: 2px 2px 0 var(--line);
+  --shadow-card-sm: 3px 3px 0 var(--line);
+  --shadow-card: 4px 4px 0 var(--line);
+  --shadow-card-lg: 5px 5px 0 var(--line);
+  --shadow-hero: 6px 6px 0 var(--line);
+
+  /* hover / active offsets — compose with the above */
+  --shadow-card-hover: 6px 6px 0 var(--line);
+  --shadow-hero-hover: 7px 7px 0 var(--line);
+  --shadow-pressed: 1px 1px 0 var(--line);
+  --shadow-pressed-sm: 2px 2px 0 var(--line);
+
+  /* -- INSET HIGHLIGHTS for gradient buttons --
+     add one of these INSIDE the gradient to get the cel plastic sheen */
+  --sheen-top: inset 0 1px 0 rgba(255,255,255,0.5);
+  --sheen-top-warm: inset 0 1px 0 rgba(255,255,255,0.35);  /* on red */
+  --sheen-bot-yellow: inset 0 -3px 0 var(--yellow-inset);
+  --sheen-bot-red: inset 0 -3px 0 var(--red-inset);
+  --sheen-bot-blue: inset 0 -3px 0 var(--blue-inset);
+  --sheen-bot-green: inset 0 -3px 0 var(--green-inset);
+  --sheen-bot-orange: inset 0 -3px 0 var(--orange-inset);
+
+  /* -- HALFTONE (halftone dot utility for large areas) -- */
+  --halftone-size: 5px;
+}
+
+/* ==========================================================================
+   Base / Reset
+   ========================================================================== */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  background: var(--bg-page);
+  color: var(--fg2);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==========================================================================
+   Semantic type — use these classes or element selectors
+   ========================================================================== */
+
+h1, .h1, h2, .h2, h3, .h3, h4, .h4, .display {
+  font-family: var(--font-display);
+  font-weight: 900;
+  color: var(--fg1);
+  text-transform: uppercase;
+  letter-spacing: var(--track-wide);
+  text-shadow: 2px 2px 0 var(--line);
+  line-height: 1.05;
+}
+
+h1, .h1 { font-size: var(--h1); text-shadow: 3px 3px 0 var(--line); }
+h2, .h2 { font-size: var(--h2); }
+h3, .h3 { font-size: var(--h3); text-shadow: 2px 2px 0 var(--line); }
+h4, .h4 { font-size: var(--h4); letter-spacing: var(--track-wider); }
+
+.hero {
+  font-family: var(--font-display);
+  font-weight: 900;
+  color: var(--fg1);
+  text-transform: uppercase;
+  letter-spacing: var(--track-tight);
+  font-size: var(--h-hero);
+  text-shadow: 3px 3px 0 var(--line);
+  line-height: 1;
+}
+
+.eyebrow {
+  font-family: var(--font-body);
+  font-weight: 900;
+  font-size: var(--body-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--track-widest);
+  color: var(--primary);  /* gold on dark */
+}
+
+.eyebrow-muted {
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: var(--body-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--track-widest);
+  color: var(--fg-dim);
+}
+
+p {
+  font-family: var(--font-body);
+  font-size: var(--body);
+  font-weight: 700;              /* body copy is bold by default */
+  color: var(--fg-muted);
+  line-height: 1.45;
+}
+
+p.lead { font-size: var(--body-lg); color: var(--fg2); }
+
+small, .caption {
+  font-size: var(--body-sm);
+  font-weight: 700;
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  letter-spacing: var(--track-wider);
+}
+
+code, pre, .mono {
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+.game-code {
+  font-family: var(--font-display);
+  font-weight: 900;
+  letter-spacing: var(--track-code);
+  color: var(--fg1);
+  text-shadow: 2px 2px 0 var(--line);
+}
+
+/* ==========================================================================
+   Halftone utility — radial dot texture on flat color areas
+   ========================================================================== */
+.halftone {
+  background-image: radial-gradient(circle, rgba(0,0,0,0.35) 1px, transparent 1.5px);
+  background-size: var(--halftone-size) var(--halftone-size);
+}
+
+.halftone-light {
+  background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1.5px);
+  background-size: var(--halftone-size) var(--halftone-size);
+}
+
+/* ==========================================================================
+   Core card / panel
+   ========================================================================== */
+.cel-card {
+  background: var(--bg-surface);
+  border: var(--bw-standard) solid var(--line);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-5);
+}
+
+.cel-card-lg {
+  background: var(--bg-surface);
+  border: var(--bw-standard) solid var(--line);
+  box-shadow: var(--shadow-card-lg);
+  padding: var(--space-6);
+}
+
+.cel-card-hero {
+  background: var(--bg-surface);
+  border: var(--bw-standard) solid var(--line);
+  box-shadow: var(--shadow-hero);
+  padding: var(--space-6);
+}
+
+/* ==========================================================================
+   Core button (use .cel-btn + .cel-btn-<color>)
+   Place all text inside .cel-btn-inner for the translate-on-press to work
+   ========================================================================== */
+.cel-btn {
+  display: inline-block;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.cel-btn .cel-btn-inner {
+  display: inline-block;
+  padding: 0.875rem 1.5rem;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: var(--body-lg);
+  text-transform: uppercase;
+  letter-spacing: var(--track-wider);
+  color: var(--fg-dark);
+  border: var(--bw-standard) solid var(--line);
+  box-shadow: var(--shadow-card-lg), var(--sheen-top);
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+  text-align: center;
+}
+
+.cel-btn-yellow .cel-btn-inner {
+  background: var(--yellow-gradient);
+  box-shadow: var(--shadow-card-lg), var(--sheen-top), var(--sheen-bot-yellow);
+}
+.cel-btn-red .cel-btn-inner {
+  background: var(--red-gradient);
+  color: var(--fg1);
+  box-shadow: var(--shadow-card-lg), var(--sheen-top-warm), var(--sheen-bot-red);
+}
+.cel-btn-blue .cel-btn-inner {
+  background: var(--blue-gradient);
+  box-shadow: var(--shadow-card-lg), var(--sheen-top), var(--sheen-bot-blue);
+}
+.cel-btn-green .cel-btn-inner {
+  background: var(--green-gradient);
+  box-shadow: var(--shadow-card-lg), var(--sheen-top), var(--sheen-bot-green);
+}
+.cel-btn-orange .cel-btn-inner {
+  background: var(--orange-gradient);
+  box-shadow: var(--shadow-card-lg), var(--sheen-top), var(--sheen-bot-orange);
+}
+
+.cel-btn:hover .cel-btn-inner {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-hero-hover), var(--sheen-top);
+}
+.cel-btn:active .cel-btn-inner {
+  transform: translate(2px, 2px);
+  box-shadow: var(--shadow-pressed-sm);
+}
+
+/* ==========================================================================
+   Input
+   ========================================================================== */
+.cel-input {
+  width: 100%;
+  height: 3rem;
+  padding: 0 1rem;
+  background: var(--bg-input-alt);
+  border: var(--bw-standard) solid var(--line);
+  box-shadow: var(--shadow-card-sm);
+  color: var(--fg1);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: var(--body);
+  transition: border-color 0.15s ease;
+}
+.cel-input::placeholder { color: var(--fg-dim); }
+.cel-input:focus { outline: none; border-color: var(--primary); }
+
+/* ==========================================================================
+   Status pill / chip
+   ========================================================================== */
+.cel-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  font-family: var(--font-body);
+  font-weight: 900;
+  font-size: var(--body-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--track-wider);
+  color: var(--fg-dark);
+  border: var(--bw-hairline) solid var(--line);
+  box-shadow: var(--shadow-chip), var(--sheen-top);
+}
+.cel-chip-yellow { background: var(--yellow-gradient); }
+.cel-chip-red    { background: var(--red-gradient); color: var(--fg1); }
+.cel-chip-blue   { background: var(--blue-gradient); }
+.cel-chip-green  { background: var(--green-gradient); }
+.cel-chip-orange { background: var(--orange-gradient); }
+.cel-chip-ghost  { background: #333; color: var(--fg1); box-shadow: var(--shadow-chip); }

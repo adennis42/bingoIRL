@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { padding: 20px; min-height: 160px; display:flex; align-items:center; justify-content:center; gap: 14px; flex-wrap:wrap; }
+  .code-row { display:flex; gap: 6px; }
+  .cell { width: 40px; height: 50px; border: 3px solid #111; display:flex; align-items:center; justify-content:center; font-family: var(--font-display); font-weight:900; font-size: 22px; color:#111; }
+  .filled { background: var(--blue-gradient); box-shadow: 3px 3px 0 #111, var(--sheen-top); }
+  .empty { background: #222; box-shadow: 2px 2px 0 #111; color:#444; }
+  .lbl { font-family: var(--font-body); font-weight:900; font-size:10px; color:#888; text-transform:uppercase; letter-spacing:0.14em; width:100%; text-align:center; }
+</style></head>
+<body>
+  <div class="lbl">Code-Entry Tiles — 6-character Game Code</div>
+  <div class="code-row">
+    <div class="cell filled">A</div>
+    <div class="cell filled">X</div>
+    <div class="cell filled">7</div>
+    <div class="cell filled">2</div>
+    <div class="cell empty">·</div>
+    <div class="cell empty">·</div>
+  </div>
+</body></html>

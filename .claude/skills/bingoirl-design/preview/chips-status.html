@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { padding: 20px; min-height: 140px; display:flex; align-items:center; justify-content:center; gap: 14px; flex-wrap:wrap; }
+  .chip { padding: 4px 10px; font-family: var(--font-body); font-weight:900; font-size:11px;
+    text-transform:uppercase; letter-spacing:0.06em; color:#111; border:2px solid #111;
+    box-shadow: 2px 2px 0 #111, var(--sheen-top); }
+  .y { background: var(--yellow-gradient); }
+  .r { background: var(--red-gradient); color:#fff; }
+  .bl { background: var(--blue-gradient); }
+  .gr { background: var(--green-gradient); }
+  .or { background: var(--orange-gradient); }
+  .gh { background:#333; color:#fff; }
+  .dot { display:inline-block; width:8px; height:8px; background:#50e878; box-shadow: 0 0 6px #50e878; margin-right:6px; }
+  .live { display:inline-flex; align-items:center; font-family: var(--font-body); font-weight:900; font-size:11px;
+    text-transform:uppercase; letter-spacing:0.12em; color:#50e878; }
+</style></head>
+<body>
+  <span class="chip y">Setup</span>
+  <span class="chip gr">Live</span>
+  <span class="chip or">Paused</span>
+  <span class="chip gh">Ended</span>
+  <span class="chip r">Error</span>
+  <span class="live"><span class="dot"></span>Live</span>
+</body></html>

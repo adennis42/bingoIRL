@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { padding: 24px; display:flex; align-items:center; justify-content:center; min-height:140px; }
+  .wrap { display:flex; align-items:flex-end; gap:6px; }
+  .tile { width: 54px; height: 54px; display:flex; align-items:center; justify-content:center;
+    font-family: var(--font-display); font-size: 28px; font-weight: 900; color: #111;
+    border: 3px solid #111; letter-spacing: -1px; }
+  .b { background: var(--blue-gradient); box-shadow: 4px 4px 0 #111, var(--sheen-top), var(--sheen-bot-blue); }
+  .i { background: var(--red-gradient); color:#fff; box-shadow: 4px 4px 0 #111, var(--sheen-top-warm), var(--sheen-bot-red); }
+  .n { background: var(--white-gradient); box-shadow: 4px 4px 0 #111, inset 0 1px 0 rgba(255,255,255,0.9), var(--sheen-bot-white); }
+  .g { background: var(--green-gradient); box-shadow: 4px 4px 0 #111, var(--sheen-top), var(--sheen-bot-green); }
+  .o { background: var(--yellow-gradient); box-shadow: 4px 4px 0 #111, var(--sheen-top), var(--sheen-bot-yellow); }
+  .irl { font-family: var(--font-display); font-size: 13px; font-weight: 900; letter-spacing: 3px;
+    color:#fff; -webkit-text-stroke: 1.5px #111; paint-order: stroke fill; text-shadow: 2px 2px 0 #111;
+    padding-bottom: 4px; padding-left: 4px; }
+</style></head>
+<body>
+  <div class="wrap">
+    <div class="tile b">B</div><div class="tile i">I</div><div class="tile n">N</div>
+    <div class="tile g">G</div><div class="tile o">O</div>
+    <div class="irl">IRL</div>
+  </div>
+</body></html>
