@@ -1,51 +1,10 @@
 import Link from "next/link";
-
-const BINGO_TILES = [
-  { letter: "B", bg: "linear-gradient(to bottom, #ffe066 0%, #f5c542 45%, #c49200 100%)", shadow: "#8a6600" },
-  { letter: "I", bg: "linear-gradient(to bottom, #ff7070 0%, #e84040 45%, #991a1a 100%)", shadow: "#660000" },
-  { letter: "N", bg: "linear-gradient(to bottom, #7dd4ff 0%, #4db8ff 45%, #1a80cc 100%)", shadow: "#004d99" },
-  { letter: "G", bg: "linear-gradient(to bottom, #80ffaa 0%, #50e878 45%, #1a9933 100%)", shadow: "#005c1a" },
-  { letter: "O", bg: "linear-gradient(to bottom, #ff9060 0%, #ff6b35 45%, #b33400 100%)", shadow: "#7a2000" },
-];
+import { BingoLogo } from "@/components/bingo/BingoLogo";
 
 export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 py-16" style={{ background: "#111" }}>
-      {/* BingoIRL logo — BINGO tiles + IRL tag as one unit */}
-      <div className="flex items-center gap-2 mb-8">
-        {BINGO_TILES.map(({ letter, bg, shadow }) => (
-          <div
-            key={letter}
-            className="w-14 h-14 flex items-center justify-center font-black text-2xl text-[#111]"
-            style={{
-              background: bg,
-              border: "3px solid #111",
-              boxShadow: `4px 4px 0px #111, inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -3px 0 ${shadow}`,
-              fontFamily: "'Arial Black', Impact, sans-serif",
-              letterSpacing: "-1px",
-            }}
-          >
-            {letter}
-          </div>
-        ))}
-        {/* IRL tag — attached to the tile row */}
-        <div className="flex flex-col justify-end pb-1 pl-1">
-          <span
-            className="font-black uppercase leading-none"
-            style={{
-              fontFamily: "'Arial Black', Impact, sans-serif",
-              fontSize: "13px",
-              letterSpacing: "3px",
-              color: "#fff",
-              WebkitTextStroke: "1.5px #111",
-              paintOrder: "stroke fill",
-              textShadow: "2px 2px 0px #111",
-            }}
-          >
-            IRL
-          </span>
-        </div>
-      </div>
+      <BingoLogo size={56} className="mb-8" />
 
       {/* Comic divider */}
       <div className="flex items-center gap-3 w-full max-w-xs my-5">

@@ -7,7 +7,7 @@ import { signIn } from "@/lib/firebase/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-const BINGO_COLORS = ["#f5c542","#e84040","#4db8ff","#50e878","#ff6b35"];
+import { BingoLogo } from "@/components/bingo/BingoLogo";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -34,20 +34,8 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center px-4 py-12" style={{ background: "#111" }}>
       <div className="w-full max-w-sm space-y-6">
         {/* Logo */}
-        <Link href="/" className="flex items-center justify-center gap-1.5 mb-2">
-          {["B","I","N","G","O"].map((l, i) => (
-            <div
-              key={l}
-              className="w-9 h-9 flex items-center justify-center font-black text-sm text-[#111]"
-              style={{
-                background: `linear-gradient(to bottom, ${BINGO_COLORS[i]}dd 0%, ${BINGO_COLORS[i]} 45%, ${BINGO_COLORS[i]}99 100%)`,
-                border: "3px solid #111",
-                boxShadow: "2px 2px 0px #111, inset 0 1px 0 rgba(255,255,255,0.4)",
-              }}
-            >
-              {l}
-            </div>
-          ))}
+        <Link href="/" className="flex justify-center mb-2">
+          <BingoLogo size={40} />
         </Link>
 
         {/* Panel */}
